@@ -31,10 +31,7 @@ def build_obj_points(inner_width, inner_height):
     objp[:,:2] = np.mgrid[0:inner_width,0:inner_height].T.reshape(-1,2)
     return objp
 
-def get_calibration_matrix(images):
-    inner_width=9
-    inner_height=5
-
+def calibrate_camera(images, inner_width, inner_height):
     objp = build_obj_points(inner_width, inner_height)
 
     # Arrays to store object points and image points from all the images.
@@ -52,5 +49,6 @@ def get_calibration_matrix(images):
 def calibrate_rgb_and_tv(objpoints, img_points_rgb, img_points_tv, image_size, rgb_camera_matrix, rgb_dist_coeffs, tv_camera_matrix, tv_dist_coeffs):
     crit = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
+    # matrix will be FROM tv TO rgb
     return cv2.stereoCalibrate(objectPoints=objpoints, imagePoints1=img_points_rgb, imagePoints2=img_points_tv, imageSize=image_size, 
         cameraMatrix1=rgb_camera_matrix, distCoeffs1=rgb_dist_coeffs, cameraMatrix2=tv_camera_matrix, distCoeffs2=tv_dist_coeffs)

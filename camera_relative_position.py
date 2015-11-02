@@ -3,10 +3,14 @@ import cv2
 import numpy as np
 import glob
 
+# number of inner corners of chessboard we would like to match
+inner_width=9
+inner_height=5
+
 def test():
     folder = 'chess_lenovo/'
     images = glob.glob(folder + 'ch*.jpg')
-    ret, mtx, dist, rvecs, tvecs, img_points, objpoints = calib.get_calibration_matrix(images)
+    ret, mtx, dist, rvecs, tvecs, img_points, objpoints = calib.calibrate_camera(images, inner_width, inner_height)
 
     img = cv2.imread(folder + 'ch1.jpg')
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
@@ -17,8 +21,8 @@ def test():
     print(image_size)
 
     return ret, mtx, dist, rvecs, tvecs, img_points, objpoints, image_size
-   # retval, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, R, T, E, F = calib.calibrate_rgb_and_tv(
-   #     objpoints, [img_points[0]], [img_points[1]], image_size, mtx, dist, mtx, dist)
+    retval, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, R, T, E, F = calib.calibrate_rgb_and_tv([crp.objpoints[0]], [crp.img_points[0]], [crp.img_points[1]], crp.image_size, crp.mtx, crp.dist, crp.mtx, crp.dist)
+
 
     #print("R = ")
     #print(R)
