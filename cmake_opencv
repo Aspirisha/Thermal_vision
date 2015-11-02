@@ -1,0 +1,1 @@
+cmake -D CMAKE_BUILD_TYPE=Release -D OPENCV_EXTRA_MODULES_PATH=/media/andy/apps1/opencv_contrib/modules -D PYTHON2_EXECUTABLE=/usr/bin/python -D PYTHON2_NUMPY_INCLUDE_DIRS=/usr/lib/python2.7/dist-packages/numpy ..
