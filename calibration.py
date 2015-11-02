@@ -31,20 +31,29 @@ def build_obj_points(inner_width, inner_height):
     objp[:,:2] = np.mgrid[0:inner_width,0:inner_height].T.reshape(-1,2)
     return objp
 
+def get_image_size(fname):
+    img = cv2.imread(fname)
+    gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+    return gray.shape[::-1]
+
 def calibrate_camera(images, inner_width, inner_height):
     objp = build_obj_points(inner_width, inner_height)
 
     # Arrays to store object points and image points from all the images.
     objpoints = [] # 3d point in real world space
     imgpoints = [] # 2d points in image plane.
+    file_names = []
 
     for fname in images:
         corners = get_image_points(fname, inner_width, inner_height)
         if corners is not None:
             objpoints.append(objp)
             imgpoints.append(corners)
+            file_names.append(fname)
 
-    return cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1],None, None) + (imgpoints, objpoints)
+    image_size = get_image_size(fname)
+
+    return cv2.calibrateCamera(objpoints, imgpoints, image_size, None, None) + (imgpoints, objpoints, file_names)
 
 def calibrate_rgb_and_tv(objpoints, img_points_rgb, img_points_tv, image_size, rgb_camera_matrix, rgb_dist_coeffs, tv_camera_matrix, tv_dist_coeffs):
     crit = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
