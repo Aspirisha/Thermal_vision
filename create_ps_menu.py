@@ -36,24 +36,49 @@ class Form(QDialog):
         vbox.addStretch(1)
         self.groupBox.setLayout(vbox)
 
-        self.edit_rgb_name = QLineEdit("rgb photo name")
-        self.edit_tv_name = QLineEdit("corresponding thermal photo name")
+        self.label = QLabel("Insert here rgb photo name and corresponding thermal photo name. Photo name prefix, index, and suffix should be delimetered with space.")
+        self.label.setWordWrap(True);
+        self.label.setMaximumWidth(300);
+        self.edit_rgb_name = QLineEdit("")
+        self.edit_tv_name = QLineEdit("")
+
+        hor_layout1 = QHBoxLayout()
+        self.label1 = QLabel("Rgb name:")
+        self.label2 = QLabel("Rgb name:")
+        hor_layout1.addWidget(self.label1)
+        hor_layout1.addWidget(self.edit_rgb_name)
+        hor_layout2 = QHBoxLayout()
+        hor_layout2.addWidget(self.label2)
+        hor_layout2.addWidget(self.edit_tv_name)
+
+        self.opt_layout = QVBoxLayout()
+        self.opt_layout.addWidget(self.label)
+        self.opt_layout.addLayout(hor_layout1)
+        self.opt_layout.addLayout(hor_layout2)
 
         self.layout.addWidget(self.groupBox)
-        self.layout.addWidget(self.edit_rgb_name)
-        self.layout.addWidget(self.edit_tv_name)
+        self.layout.addLayout(self.opt_layout, 1, 0)
         self.layout.addWidget(self.button)
+
         self.layout.setSizeConstraint(QLayout.SetFixedSize)
-    # Greets the user
+        self.optional_widgets = [self.label, self.label1, self.label2, self.edit_rgb_name, self.edit_tv_name]
+
     def apply(self):
-        pass
+        if self.radio1.isChecked():
+            rgb_name = self.edit_rgb_name.text()
+            tv_name = self.edit_rgb_name.text()
+            print(rgb_name)
+        else:
+            print('by distance')
+        self.hide()
 
     def by_names_clicked(self):
-        self.edit_rgb_name.show()
-        self.edit_tv_name.show()
+        for w in self.optional_widgets:
+            w.show()
+
     def by_distance_clicked(self):
-        self.edit_rgb_name.hide()
-        self.edit_tv_name.hide()
+        for w in self.optional_widgets:
+            w.hide()
  
 def f():
     form.show()
