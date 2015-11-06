@@ -36,23 +36,33 @@ class Form(QDialog):
         vbox.addStretch(1)
         self.groupBox.setLayout(vbox)
 
-        self.label = QLabel("Insert here rgb photo name prefix and corresponding thermal photo name prefix.")
+        '''self.label = QLabel("Insert here rgb photo name prefix and corresponding thermal photo name prefix.")
         self.label.setWordWrap(True);
-        self.label.setMaximumWidth(300);
-        self.edit_rgb_name = QLineEdit("")
-        self.edit_tv_name = QLineEdit("")
+        self.label.setMaximumWidth(300);'''
 
         hor_layout1 = QHBoxLayout()
-        self.label1 = QLabel("RGB name:")
-        self.label2 = QLabel("TV name:")
-        hor_layout1.addWidget(self.label1)
-        hor_layout1.addWidget(self.edit_rgb_name)
+        self.label_rgb_1 = QLabel("RGB prefix:")
+        self.label_rgb_2 = QLabel("RGB index:")
+        self.edit_rgb_prefix = QLineEdit("")
+        self.edit_rgb_index = QLineEdit("")
+        self.edit_rgb_index.setValidator(QIntValidator(0, 1000000000, self))
+        hor_layout1.addWidget(self.label_rgb_1)
+        hor_layout1.addWidget(self.edit_rgb_prefix)
+        hor_layout1.addWidget(self.label_rgb_2)
+        hor_layout1.addWidget(self.edit_rgb_index)
+
         hor_layout2 = QHBoxLayout()
-        hor_layout2.addWidget(self.label2)
-        hor_layout2.addWidget(self.edit_tv_name)
+        self.label_tv_1 = QLabel("TV prefix:")
+        self.label_tv_2 = QLabel("TV index:")
+        self.edit_tv_prefix = QLineEdit("")
+        self.edit_tv_index = QLineEdit("")
+        self.edit_tv_index.setValidator(QIntValidator(0, 1000000000, self))
+        hor_layout2.addWidget(self.label_tv_1)
+        hor_layout2.addWidget(self.edit_tv_prefix)
+        hor_layout2.addWidget(self.label_tv_2)
+        hor_layout2.addWidget(self.edit_tv_index)
 
         self.opt_layout = QVBoxLayout()
-        self.opt_layout.addWidget(self.label)
         self.opt_layout.addLayout(hor_layout1)
         self.opt_layout.addLayout(hor_layout2)
 
@@ -61,13 +71,18 @@ class Form(QDialog):
         self.layout.addWidget(self.button)
 
         self.layout.setSizeConstraint(QLayout.SetFixedSize)
-        self.optional_widgets = [self.label, self.label1, self.label2, self.edit_rgb_name, self.edit_tv_name]
+        self.optional_widgets = [self.label_rgb_1, self.label_tv_1, self.label_rgb_2, self.label_tv_2, self.edit_rgb_prefix, self.edit_rgb_index, self.edit_tv_prefix, self.edit_tv_index]
 
     def apply(self):
         if self.radio1.isChecked():
-            rgb_name = self.edit_rgb_name.text()
-            tv_name = self.edit_tv_name.text()
-            
+            rgb_prefix = self.edit_rgb_prefix.text()
+            tv_prefix = self.edit_tv_prefix.text()
+            try:
+                rgb_index = int(self.edit_rgb_index.text())
+                tv_index = int(self.edit_tv_index.text())
+            except:
+                ps.app.messageBox("Index fields can't be blank!")
+                return
             print(lines_tv)
         else:
             print('by distance')
