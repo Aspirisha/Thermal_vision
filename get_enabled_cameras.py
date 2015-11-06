@@ -8,7 +8,7 @@ unaligned_tv_chunk_idx = 1
 result_chunk_idx = 2
 doc = PhotoScan.app.document
 
-def enable_by_name(enabled_camera_nums):
+def enable_by_name(enabled_camera_nums, ):
 	global doc
 	doc.chunk = doc.chunks[unaligned_tv_chunk_idx]
 	
