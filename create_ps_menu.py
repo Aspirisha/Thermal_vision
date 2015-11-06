@@ -36,15 +36,15 @@ class Form(QDialog):
         vbox.addStretch(1)
         self.groupBox.setLayout(vbox)
 
-        self.label = QLabel("Insert here rgb photo name and corresponding thermal photo name. Photo name prefix, index, and suffix should be delimetered with space.")
+        self.label = QLabel("Insert here rgb photo name prefix and corresponding thermal photo name prefix.")
         self.label.setWordWrap(True);
         self.label.setMaximumWidth(300);
         self.edit_rgb_name = QLineEdit("")
         self.edit_tv_name = QLineEdit("")
 
         hor_layout1 = QHBoxLayout()
-        self.label1 = QLabel("Rgb name:")
-        self.label2 = QLabel("Rgb name:")
+        self.label1 = QLabel("RGB name:")
+        self.label2 = QLabel("TV name:")
         hor_layout1.addWidget(self.label1)
         hor_layout1.addWidget(self.edit_rgb_name)
         hor_layout2 = QHBoxLayout()
@@ -66,8 +66,9 @@ class Form(QDialog):
     def apply(self):
         if self.radio1.isChecked():
             rgb_name = self.edit_rgb_name.text()
-            tv_name = self.edit_rgb_name.text()
-            print(rgb_name)
+            tv_name = self.edit_tv_name.text()
+            
+            print(lines_tv)
         else:
             print('by distance')
         self.hide()
