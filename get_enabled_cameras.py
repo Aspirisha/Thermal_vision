@@ -62,7 +62,6 @@ def get_enabled_rgb_cameras():
 	for c in doc.chunk.cameras:
 		if not c.enabled:
 			unused_cameras.append(c)
-	doc.chunk.remove(unused_cameras)
 	
 	for c in doc.chunk.cameras:
 		if c.enabled:
