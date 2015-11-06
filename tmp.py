@@ -1,9 +1,13 @@
-ans = 0
-for i in range(0, 11):
-    for j in range(0, 6):
-        for k in range (0, 4):
-            for l in range(0, 3):
-                if i + j*2 + k*3 + l*5 == 10:
-                    ans += 1
-                    print ("n = 1*" + str(i) + "+ 2*" + str(j) + "+ 3*" + str(k) + "+ 5*" + str(l))
-print (ans)
+import sys
+from PySide.QtCore import *
+from PySide.QtGui import *
+ 
+# Create a Qt application
+app = QApplication.instance()
+# Create a Label and show it
+label = QLabel("Hello World")
+label.show()
+# Enter Qt application main loop
+#sys.exit(app.exec_())
+#sys.exit()
+if __name__ == '__main__': sys.modules['asgard'] = sys.modules['__main__']
