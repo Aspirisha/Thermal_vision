@@ -187,6 +187,12 @@ def get_chunk_scale(chunk):
 	scale = (chunk.transform.matrix.inv().mulp(chunk.crs.unproject(e1)) - chunk.transform.matrix.inv().mulp(chunk.crs.unproject(e0))).norm()
 	return scale
 
+def scale_transform_matrix(m, chunk_scale):
+	new_mat = m.copy()
+	for i in range(3):
+		new_mat[3, i] *= chunk_scale
+	return new_mat
+
 def slerp(v1, v2, t):
 	cos_omega = v1 * v2 / (v1.norm() * v2.norm())
 	sin_omega = sqrt(1 - cos_omega ** 2)
