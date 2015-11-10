@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>506</width>
-    <height>819</height>
+    <width>463</width>
+    <height>623</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -31,8 +31,8 @@
      <widget class="QWidget" name="horizontalLayoutWidget_2">
       <property name="geometry">
        <rect>
-        <x>70</x>
-        <y>730</y>
+        <x>60</x>
+        <y>550</y>
         <width>341</width>
         <height>51</height>
        </rect>
@@ -63,8 +63,8 @@
      <widget class="QGroupBox" name="groupBox_5">
       <property name="geometry">
        <rect>
-        <x>30</x>
-        <y>170</y>
+        <x>0</x>
+        <y>0</y>
         <width>441</width>
         <height>471</height>
        </rect>
@@ -74,6 +74,12 @@
         <horstretch>0</horstretch>
         <verstretch>1</verstretch>
        </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>471</height>
+       </size>
       </property>
       <property name="title">
        <string>Calibration setup</string>
@@ -94,110 +100,6 @@
         <bool>true</bool>
        </property>
       </widget>
-      <widget class="QWidget" name="verticalLayoutWidget">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>90</y>
-         <width>431</width>
-         <height>371</height>
-        </rect>
-       </property>
-       <layout class="QVBoxLayout" name="calculate_matrices_opt_layout">
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout8">
-          <item>
-           <widget class="QPushButton" name="tv_calibration_files_button">
-            <property name="text">
-             <string>Select TV calibration files</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="tv_calibration_files_edit"/>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout9">
-          <item>
-           <widget class="QPushButton" name="rgb_calibration_files_button">
-            <property name="text">
-             <string>Select RGB calibration files</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="rgb_calibration_files_edit"/>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>Corresponding TV and RGB photos:</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QTableWidget" name="rgb_tv_table">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
-            <horstretch>1</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="rowCount">
-           <number>1</number>
-          </property>
-          <attribute name="horizontalHeaderCascadingSectionResizes">
-           <bool>true</bool>
-          </attribute>
-          <attribute name="horizontalHeaderDefaultSectionSize">
-           <number>200</number>
-          </attribute>
-          <attribute name="horizontalHeaderMinimumSectionSize">
-           <number>200</number>
-          </attribute>
-          <attribute name="horizontalHeaderStretchLastSection">
-           <bool>true</bool>
-          </attribute>
-          <row/>
-          <column>
-           <property name="text">
-            <string>RGB photo</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>TV photo</string>
-           </property>
-          </column>
-         </widget>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="calibration_file_options_layout_3">
-          <item>
-           <widget class="QCheckBox" name="save_matrices_checkbox">
-            <property name="text">
-             <string>Save matrices to following file</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="save_matrices_file_edit">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-       </layout>
-      </widget>
       <widget class="QRadioButton" name="radio_use_file_matrices">
        <property name="geometry">
         <rect>
@@ -211,137 +113,137 @@
         <string>Use calibration matrices from file</string>
        </property>
       </widget>
-     </widget>
-     <widget class="QGroupBox" name="groupBox_2">
-      <property name="geometry">
-       <rect>
-        <x>20</x>
-        <y>0</y>
-        <width>341</width>
-        <height>61</height>
-       </rect>
-      </property>
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="title">
-       <string>Select thermal and rgb photos matching</string>
-      </property>
-      <widget class="QRadioButton" name="radio_by_name">
+      <widget class="QGroupBox" name="groupBox_2">
        <property name="geometry">
         <rect>
-         <x>10</x>
-         <y>40</y>
-         <width>117</width>
-         <height>22</height>
+         <x>-10</x>
+         <y>80</y>
+         <width>461</width>
+         <height>401</height>
         </rect>
        </property>
-       <property name="text">
-        <string>By name</string>
+       <property name="title">
+        <string/>
        </property>
-      </widget>
-      <widget class="QRadioButton" name="radio_by_distance">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>20</y>
-         <width>117</width>
-         <height>22</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>By distance</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </widget>
-     <widget class="QGroupBox" name="groupBox_4">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>60</y>
-        <width>461</width>
-        <height>111</height>
-       </rect>
-      </property>
-      <property name="title">
-       <string/>
-      </property>
-      <widget class="QWidget" name="gridLayoutWidget">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>20</y>
-         <width>441</width>
-         <height>85</height>
-        </rect>
-       </property>
-       <layout class="QGridLayout" name="by_name_options_layout">
-        <property name="sizeConstraint">
-         <enum>QLayout::SetFixedSize</enum>
+       <widget class="QWidget" name="verticalLayoutWidget">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>20</y>
+          <width>421</width>
+          <height>371</height>
+         </rect>
         </property>
-        <item row="1" column="0">
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
-           <widget class="QLabel" name="rgb_index_label">
+        <layout class="QVBoxLayout" name="calculate_matrices_opt_layout">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout8">
+           <item>
+            <widget class="QPushButton" name="tv_calibration_files_button">
+             <property name="text">
+              <string>Select TV calibration files</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="tv_calibration_files_edit">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout9">
+           <item>
+            <widget class="QPushButton" name="rgb_calibration_files_button">
+             <property name="text">
+              <string>Select RGB calibration files</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="rgb_calibration_files_edit"/>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Corresponding TV and RGB photos:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QTableWidget" name="rgb_tv_table">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+             <horstretch>1</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="rowCount">
+            <number>1</number>
+           </property>
+           <attribute name="horizontalHeaderCascadingSectionResizes">
+            <bool>true</bool>
+           </attribute>
+           <attribute name="horizontalHeaderDefaultSectionSize">
+            <number>200</number>
+           </attribute>
+           <attribute name="horizontalHeaderMinimumSectionSize">
+            <number>200</number>
+           </attribute>
+           <attribute name="horizontalHeaderStretchLastSection">
+            <bool>true</bool>
+           </attribute>
+           <row/>
+           <column>
             <property name="text">
-             <string>TV prefix:</string>
+             <string>RGB photo</string>
             </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="rgb_prefix_edit"/>
-          </item>
-          <item>
-           <widget class="QLabel" name="rgb_prefix_label">
+           </column>
+           <column>
             <property name="text">
-             <string>TV index:</string>
+             <string>TV photo</string>
             </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="rgb_index_edit"/>
-          </item>
-         </layout>
-        </item>
-        <item row="0" column="0">
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
-          <item>
-           <widget class="QLabel" name="tv_index_label">
-            <property name="text">
-             <string>RGB prefix:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="tv_prefix_edit"/>
-          </item>
-          <item>
-           <widget class="QLabel" name="tv_prefix_label">
-            <property name="text">
-             <string>RGB index:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="tv_index_edit"/>
-          </item>
-         </layout>
-        </item>
-       </layout>
+           </column>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="calibration_file_options_layout_3">
+           <item>
+            <widget class="QCheckBox" name="save_matrices_checkbox">
+             <property name="text">
+              <string>Save matrices to following file</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="save_matrices_file_edit">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
       </widget>
      </widget>
      <widget class="QGroupBox" name="groupBox_3">
       <property name="geometry">
        <rect>
-        <x>30</x>
-        <y>650</y>
-        <width>441</width>
+        <x>10</x>
+        <y>480</y>
+        <width>461</width>
         <height>61</height>
        </rect>
       </property>
@@ -351,9 +253,9 @@
       <widget class="QWidget" name="horizontalLayoutWidget">
        <property name="geometry">
         <rect>
-         <x>0</x>
+         <x>10</x>
          <y>10</y>
-         <width>431</width>
+         <width>411</width>
          <height>41</height>
         </rect>
        </property>
@@ -377,11 +279,6 @@
        </layout>
       </widget>
      </widget>
-     <zorder>groupBox_4</zorder>
-     <zorder>horizontalLayoutWidget_2</zorder>
-     <zorder>groupBox_5</zorder>
-     <zorder>groupBox_2</zorder>
-     <zorder>groupBox_3</zorder>
     </widget>
    </item>
   </layout>
@@ -420,8 +317,111 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>save_matrices_checkbox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>Dialog</receiver>
+   <slot>save_matrices_to_file_checked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>158</x>
+     <y>453</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>252</x>
+     <y>319</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>select_calibration_file_button</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>use_matrices_from_file_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>145</x>
+     <y>519</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>252</x>
+     <y>319</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radio_calculate_matrices</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>calculate_matrices_radio_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>139</x>
+     <y>49</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>252</x>
+     <y>319</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radio_use_file_matrices</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>select_matrices_radio_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>179</x>
+     <y>79</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>252</x>
+     <y>319</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rgb_calibration_files_button</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>select_rgb_calib_files_cliked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>141</x>
+     <y>149</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>252</x>
+     <y>319</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tv_calibration_files_button</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>select_tv_calib_files_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>135</x>
+     <y>114</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>252</x>
+     <y>319</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>ok_pressed()</slot>
+  <slot>use_matrices_from_file_clicked()</slot>
+  <slot>calculate_matrices_radio_clicked()</slot>
+  <slot>select_tv_calib_files_clicked()</slot>
+  <slot>select_rgb_calib_files_cliked()</slot>
+  <slot>save_matrices_to_file_checked(bool)</slot>
+  <slot>select_matrices_file_clicked()</slot>
+  <slot>select_matrices_radio_clicked()</slot>
  </slots>
 </ui>

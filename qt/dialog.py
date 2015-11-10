@@ -25,14 +25,44 @@ class ControlDialog(QtGui.QDialog):
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)
         self.setLayout(self.ui.gridLayout)
-        #self.resize(0,0)
-        
-        #self.ui.verticalLayout.setSizeConstraint(QtGui.QLayout.SetFixedSize)
-        self.ui.groupBox_4.setEnabled(False)
+       
         self.ui.groupBox_3.setEnabled(False)
-        #show_all_widgets_in_layout(self.ui.by_name_options_layout, False)
 
-    def ok_pressed():
+        self.rgb_combobox = QtGui.QComboBox(self)
+        self.ui.rgb_tv_table.setCellWidget(0,0,self.rgb_combobox)
+
+        self.tv_combobox = QtGui.QComboBox(self)
+        self.ui.rgb_tv_table.setCellWidget(0,1,self.tv_combobox)
+
+    def ok_pressed(self):
+        pass
+
+    def save_matrices_to_file_checked(self, checked):
+        pass
+
+    def use_matrices_from_file_clicked(self):
+        pass
+
+    def calculate_matrices_radio_clicked(self):
+        self.ui.groupBox_2.setEnabled(True)
+        self.ui.groupBox_3.setEnabled(False)
+        pass
+
+    def select_matrices_radio_clicked(self):
+        self.ui.groupBox_3.setEnabled(True)
+        self.ui.groupBox_2.setEnabled(False)
+        pass
+
+    def select_rgb_calib_files_cliked(self):
+        files = QtGui.QFileDialog.getOpenFileNames(
+                        self,
+                        "Select one or more files to open",
+                        "/home/andy/AU/Geoscan/",
+                        "Images (*.png *.xpm *.jpg *.bmp)")[0];
+        print("You chose: " + str(files))
+        pass
+
+    def select_tv_calib_files_clicked(self):
         pass
 
 def main():
