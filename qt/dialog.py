@@ -9,6 +9,7 @@
 
 from PySide import QtCore, QtGui
 from dialog_ui import Ui_Dialog
+import PyQt4
 import sys
 
 def show_all_widgets_in_layout(layout, show):
@@ -33,6 +34,8 @@ class ControlDialog(QtGui.QDialog):
 
         self.tv_combobox = QtGui.QComboBox(self)
         self.ui.rgb_tv_table.setCellWidget(0,1,self.tv_combobox)
+        self.rgb_calib_photos_are_ok = False
+        self.tv_calib_photos_are_ok = False
 
     def ok_pressed(self):
         pass
@@ -60,10 +63,18 @@ class ControlDialog(QtGui.QDialog):
                         "/home/andy/AU/Geoscan/",
                         "Images (*.png *.xpm *.jpg *.bmp)")[0];
         print("You chose: " + str(files))
+        if len(files) > MIN_CALIBRATION_FILES:
+            self.rgb_calibration_files = files
+        else:
+            pass
         pass
 
     def select_tv_calib_files_clicked(self):
         pass
+
+    def readonly_checkboxes_checked(self):
+        self.ui.rgb_photos_ok_checkbox.setChecked(self.rgb_calib_photos_are_ok)
+        self.ui.tv_photos_ok_checkbox.setChecked(self.tv_calib_photos_are_ok)
 
 def main():
     qtapp = QtGui.QApplication(sys.argv)
