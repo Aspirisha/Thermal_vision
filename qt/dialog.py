@@ -24,9 +24,13 @@ class ControlDialog(QtGui.QDialog):
         super(ControlDialog, self).__init__(parent)
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)
-        show_all_widgets_in_layout(self.ui.by_name_options_layout, False)
-        self.ui.gridLayout.setSizeConstraint(QtGui.QLayout.SetFixedSize)
-        #self.ui.gridLayout.adjustSize()
+        self.setLayout(self.ui.gridLayout)
+        #self.resize(0,0)
+        
+        #self.ui.verticalLayout.setSizeConstraint(QtGui.QLayout.SetFixedSize)
+        self.ui.groupBox_4.setEnabled(False)
+        self.ui.groupBox_3.setEnabled(False)
+        #show_all_widgets_in_layout(self.ui.by_name_options_layout, False)
 
     def ok_pressed():
         pass
