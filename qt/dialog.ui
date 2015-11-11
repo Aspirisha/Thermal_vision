@@ -637,7 +637,7 @@
             </sizepolicy>
            </property>
            <property name="rowCount">
-            <number>1</number>
+            <number>0</number>
            </property>
            <attribute name="horizontalHeaderCascadingSectionResizes">
             <bool>true</bool>
@@ -651,7 +651,6 @@
            <attribute name="horizontalHeaderStretchLastSection">
             <bool>true</bool>
            </attribute>
-           <row/>
            <column>
             <property name="text">
              <string>RGB photo</string>
@@ -890,6 +889,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>tv_photos_ok_checkbox</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>readonly_checkboxes_checked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>263</x>
+     <y>124</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>244</x>
+     <y>311</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>ok_pressed()</slot>
@@ -901,5 +916,6 @@
   <slot>select_matrices_file_clicked()</slot>
   <slot>select_matrices_radio_clicked()</slot>
   <slot>readonly_checkboxes_checked()</slot>
+  <slot>table_cell_clicked(int,int)</slot>
  </slots>
 </ui>

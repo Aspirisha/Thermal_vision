@@ -38,6 +38,8 @@ class ControlDialog(QtGui.QDialog):
         self.file_name_to_save_matrices = None
         self.tv_calibration_files = None
         self.rgb_calibration_files = None
+        self.rgb_short_file_names = None
+        self.tv_short_file_names = None
 
     def ok_pressed(self):
         pass
@@ -81,17 +83,24 @@ class ControlDialog(QtGui.QDialog):
 
             return None
 
+    def update_tv_comboboxes(self):
+        for i, cbox in enumerate(self.tv_comboboxes):
+            cbox.clear()
+            cbox.addItems(self.tv_short_file_names)
+            self.rgb_checkboxes[i].stateChanged.connect(cbox.setEnabled)
+
     def select_rgb_calib_files_cliked(self):
         files = self.select_calibration_files_clicked()
         if files is not None:
             self.rgb_calibration_files = files
             self.readonly_checkboxes_checked()
             self.ui.rgb_tv_table.setRowCount(len(files))
-            
+            self.rgb_short_file_names = [s.split('/')[-1] for s in files]
+
             self.rgb_checkboxes = []            
             self.tv_comboboxes = []
 
-            for i, f in enumerate(files):
+            for i, f in enumerate(self.rgb_short_file_names):
                 new_check_box = QtGui.QCheckBox(self)
                 new_check_box.setChecked(False)
                 new_check_box.setText(f)
@@ -101,18 +110,19 @@ class ControlDialog(QtGui.QDialog):
                 
                 new_combo_box = QtGui.QComboBox(self)
                 self.tv_comboboxes.append(new_combo_box)
+                self.ui.rgb_tv_table.setCellWidget(i,1,new_combo_box)
+                new_combo_box.setEnabled(False)
 
             if self.tv_calibration_files:
-                for cbox in self.tv_comboboxes:
-                    cbox.addItems(self.tv_calibration_files)
+                self.update_tv_comboboxes()
 
     def select_tv_calib_files_clicked(self):
         files = self.select_calibration_files_clicked()
         if files is not None:
+            self.tv_short_file_names = [s.split('/')[-1] for s in files]
             self.tv_calibration_files = files
             self.readonly_checkboxes_checked()
-            self.tv_combobox.clear()
-            self.tv_combobox.addItems(files)
+            self.update_tv_comboboxes()
 
     def readonly_checkboxes_checked(self):
         self.ui.rgb_photos_ok_checkbox.setChecked(self.rgb_calibration_files is not None)
