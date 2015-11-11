@@ -40,6 +40,7 @@ class ControlDialog(QtGui.QDialog):
         self.rgb_calibration_files = None
         self.rgb_short_file_names = None
         self.tv_short_file_names = None
+        self.checked_correpsonfing_photos = 0
 
     def ok_pressed(self):
         pass
@@ -88,10 +89,13 @@ class ControlDialog(QtGui.QDialog):
             cbox.clear()
             cbox.addItems(self.tv_short_file_names)
             self.rgb_checkboxes[i].stateChanged.connect(cbox.setEnabled)
+            self.rgb_checkboxes[i].setEnabled(True)
+            
 
     def select_rgb_calib_files_cliked(self):
         files = self.select_calibration_files_clicked()
         if files is not None:
+            self.checked_correpsonfing_photos = 0
             self.rgb_calibration_files = files
             self.readonly_checkboxes_checked()
             self.ui.rgb_tv_table.setRowCount(len(files))
@@ -100,10 +104,13 @@ class ControlDialog(QtGui.QDialog):
             self.rgb_checkboxes = []            
             self.tv_comboboxes = []
 
+            self.checked_correpsonfing_photos = 0
             for i, f in enumerate(self.rgb_short_file_names):
                 new_check_box = QtGui.QCheckBox(self)
                 new_check_box.setChecked(False)
+                new_check_box.setEnabled(False)
                 new_check_box.setText(f)
+                new_check_box.stateChanged.connect(self.table_checkbox_clicked)
                 
                 self.rgb_checkboxes.append(new_check_box)
                 self.ui.rgb_tv_table.setCellWidget(i,0,new_check_box)
@@ -127,6 +134,15 @@ class ControlDialog(QtGui.QDialog):
     def readonly_checkboxes_checked(self):
         self.ui.rgb_photos_ok_checkbox.setChecked(self.rgb_calibration_files is not None)
         self.ui.tv_photos_ok_checkbox.setChecked(self.tv_calibration_files is not None)
+
+    def table_checkbox_clicked(self, checked):
+        if checked and self.tv_calibration_files:
+            self.ui.ok_button.setEnabled(True)
+            self.checked_correpsonfing_photos += 1
+        else:
+            self.checked_correpsonfing_photos -= 1
+            if self.checked_correpsonfing_photos == 0:
+                self.ui.ok_button.setEnabled(False)
 
 def main():
     qtapp = QtGui.QApplication(sys.argv)
