@@ -16,7 +16,7 @@ def test():
     rgb_relative_file_names = glob.glob(folder + 'ch1.jpg')
     tv_relative_file_names = glob.glob(folder + 'ch2.jpg')
 
-    return get_tv_to_rgb_matrix(rgb_images, tv_images, rgb_relative_file_names, tv_relative_file_names,0.027)
+    return get_tv_to_rgb_matrix(rgb_images, tv_images, rgb_relative_file_names, tv_relative_file_names,0.027)[0]
 
 def get_tv_to_rgb_matrix(rgb_calibration_file_names, tv_calibration_file_names, rgb_relative_file_names, 
     tv_relative_file_names, chessboard_cell_width_meters, rgb_camera_matrix = None, rgb_camera_dist = None, tv_camera_matrix = None, tv_camera_dist = None, 
@@ -59,13 +59,13 @@ def get_tv_to_rgb_matrix(rgb_calibration_file_names, tv_calibration_file_names, 
         print("Error: ")
         pass
 
-    return objpoints, img_points_rgb, img_points_tv, image_size, mtx_rgb, dist_rgb, mtx_tv, dist_tv
+    #return objpoints, img_points_rgb, img_points_tv, image_size, mtx_rgb, dist_rgb, mtx_tv, dist_tv
 
     retval, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, R, T, E, F = calib.calibrate_rgb_and_tv([objpoints], img_points_rgb, img_points_tv, image_size, mtx_rgb, dist_rgb, mtx_tv, dist_tv)
 
     T *= chessboard_cell_width_meters # now translations is in meters
 
     A = np.append(np.append(R, T, axis=1), np.array([[0, 0, 0, 1]]), axis=0)
-    return A
+    return A, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2
 
 #ret, mtx, dist, rvecs, tvecs, img_points, objpoints, image_size = test()

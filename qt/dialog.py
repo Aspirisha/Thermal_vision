@@ -12,6 +12,10 @@ from dialog_ui import Ui_Dialog
 import PyQt4
 import sys
 
+sys.path.append("../")
+from camera_relative_position import get_tv_to_rgb_matrix
+from get_enabled_cameras import build_tv_texture
+
 def show_all_widgets_in_layout(layout, show):
     items = (layout.itemAt(i) for i in range(layout.count())) 
     for item in items:
@@ -29,11 +33,9 @@ class ControlDialog(QtGui.QDialog):
         self.setLayout(self.ui.gridLayout)
        
         self.ui.groupBox_3.setEnabled(False)
+        self.ui.cell_size_edit.setValidator(QtGui.QDoubleValidator(0, 100, 4, self))
 
         self.rgb_checkboxes = []
-        #self.ui.rgb_tv_table.setCellWidget(0,0,self.rgb_combobox)
-        #self.rgb_checkboxes.currentIndexChanged.connect(self.rgb_)
-
         self.tv_comboboxes = []
         self.file_name_to_save_matrices = None
         self.tv_calibration_files = None
@@ -42,8 +44,35 @@ class ControlDialog(QtGui.QDialog):
         self.tv_short_file_names = None
         self.checked_correpsonfing_photos = 0
 
-    def ok_pressed(self):
-        pass
+    def ok_pressed(self):      
+        rgb_images = self.rgb_calibration_files
+        tv_images = self.tv_calibration_files
+        
+        rgb_relative_file_names = []
+        tv_relative_file_names = []
+        for i, chbox in enumerate(self.rgb_checkboxes):
+            if not chbox.isChecked():
+                continue
+            rgb_relative_file_names.append(self.rgb_calibration_files[i])
+            tv_relative_file_names.append(self.tv_calibration_files[i])
+
+        cell_size = float(self.ui.cell_size_edit.text())
+
+        A, cameraMatrix_rgb, distCoeffs_rgb, cameraMatrix_tv, distCoeffs_tv = get_tv_to_rgb_matrix(
+            rgb_images, tv_images, rgb_relative_file_names, tv_relative_file_names, cell_size)
+
+        if self.ui.save_matrices_checkbox.isChecked():
+            f = open(self.file_name_to_save_matrices)
+            f.write(str(cameraMatrix_rgb))
+            f.write(str(distCoeffs_rgb))
+            f.write(str(cameraMatrix_tv))
+            f.write(str(distCoeffs_tv))
+            f.write(str(A))
+
+        rgb_time_file = "time_rgb.txt"
+        tv_time_file = "time_tv.txt"
+        build_tv_texture(A, rgb_time_file, tv_time_file, cameraMatrix_tv, distCoeffs_tv)
+        
 
     def save_matrices_to_file_checked(self, checked):
         options = QtGui.QFileDialog.Options()
@@ -52,7 +81,10 @@ class ControlDialog(QtGui.QDialog):
                 "QFileDialog.getSaveFileName()",
                 "calibration.txt",
                 "All Files (*);;Text Files (*.txt)", "", options)
-        self.file_name_to_save_matrices = file_name
+        if file_name is not None:
+            self.file_name_to_save_matrices = file_name
+        else:
+            self.ui.save_matrices_checkbox.setChecked(False)
 
 
     def use_matrices_from_file_clicked(self):
@@ -75,7 +107,7 @@ class ControlDialog(QtGui.QDialog):
                         "/home/andy/AU/Geoscan/",
                         "Images (*.png *.xpm *.jpg *.bmp)")[0];
         print("You chose: " + str(files))
-        if len(files) > ControlDialog.MIN_CALIBRATION_FILES:
+        if len(files) >= ControlDialog.MIN_CALIBRATION_FILES:
             return files
         else:
             ret = QtGui.QMessageBox.information(self, self.tr("Calibration files"),

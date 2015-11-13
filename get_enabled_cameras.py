@@ -2,6 +2,7 @@ import re
 import PhotoScan
 import shutil
 import copy
+from collections import OrderedDict
 
 aligned_rgb_chunk_idx = 0
 unaligned_tv_chunk_idx = 1
@@ -54,7 +55,6 @@ def enable_by_distance(enabled_camera_coords, enabled_camera_indices):
 
 def get_enabled_rgb_cameras():
 	global doc
-	enabled_camera_nums = []
 	enabled_camera_indices = []
 	enabled_camera_coords = []
 	doc.chunk = doc.chunks[aligned_rgb_chunk_idx]
@@ -63,15 +63,12 @@ def get_enabled_rgb_cameras():
 		if not c.enabled:
 			unused_cameras.append(c)
 	
-	for c in doc.chunk.cameras:
+	for idx, c in enumerate(doc.chunk.cameras):
 		if c.enabled:
-			m = re.search("DSC\d+(\d{4})\.JPG", c.label)
-			if m is not None:
-				enabled_camera_nums.append(m.group(1))
-				enabled_camera_coords.append(c.reference.location)
-				enabled_camera_indices.append(doc.chunk.cameras.index(c))
+			enabled_camera_coords.append(c.reference.location)
+			enabled_camera_indices.append(idx)
 	
-	return enabled_camera_nums, enabled_camera_indices, enabled_camera_coords
+	return enabled_camera_indices, enabled_camera_coords
 
 def rebuild_merged_chunk():
 	global doc
@@ -100,7 +97,52 @@ def rebuild_merged_chunk():
 	
 	return rgb_tv_correspondence
 		
-def rebuild_texture(chunk):
+# returns dictionary: capture_name -> time
+def get_capture_times(file_name):
+	pass
+
+def build_tv_texture(tv_to_rgb_matrix, rgb_times_file, tv_times_file, cameraMatrix_tv, distCoeffs_tv):
+	camera_name_to_index = {}
+	for idx, c in enumerate(doc.chunk.cameras):
+		camera_name_to_index[c.label] = idx
+
+	rgb_times = get_capture_times(rgb_times_file) # 
+	tv_times = get_capture_times(tv_times_file)
+	sorted_tv_times = OrderedDict(sorted(d.items(), key=lambda x: x[1]))
+	sorted_rgb_times = OrderedDict(sorted(d.items(), key=lambda x: x[1]))
+
+	rgb_times = [(k,v) for k,v in sorted_rgb_times.items()]
+	rgb_idx = 0
+	for c in doc.chunk.cameras:
+		c.enabled = False
+
+	for tv_photo, tv_time in sorted_tv_times.iteritems():
+		if rgb_times[rgb_idx][1] > tv_time: # we need to get into interval
+			continue
+		next_idx = rgb_idx + 1
+		while rgb_times[next_idx][1] < tv_time
+			next_idx += 1
+		rgb_idx = next_idx - 1
+
+		t2 = rgb_times[next_idx][1]
+		t1 = rgb_times[rgb_idx][1]
+		rgb_tr_matrix1 = doc.chunk.cameras[camera_name_to_index[rgb_times[rgb_idx]]].transform
+		rgb_tr_matrix2 = doc.chunk.cameras[camera_name_to_index[rgb_times[next_idx]]].transform
+		tr_mat = get_transfom_matrix_for_tv(rgb_tr_matrix1, t1, rgb_tr_matrix2, t2, tv_to_rgb_matrix, tv_time):
+		tv_camera = doc.chunk.cameras[camera_name_to_index[tv_photo]]
+		tv_camera.transform = tr_mat
+		tv_camera.sensor.fx = cameraMatrix_tv[0,0]
+		tv_camera.sensor.fy = cameraMatrix_tv[1,1]
+		tv_camera.sensor.cx = cameraMatrix_tv[0,2]
+		tv_camera.sensor.cy = cameraMatrix_tv[1,2]
+		tv_camera.sensor.k1 = distCoeffs_tv[0]
+		tv_camera.sensor.k2 = distCoeffs_tv[1]
+		tv_camera.sensor.p1 = distCoeffs_tv[2]
+		tv_camera.sensor.p2 = distCoeffs_tv[3]
+		tv_camera.enabled = True
+
+	for c in doc.chunk.cameras:
+		c.enabled = not c.enabled
 	doc.chunk.buildUV()
 	doc.chunk.buildTexture(blending=PhotoScan.BlendingMode.AverageBlending)
 		
@@ -223,8 +265,8 @@ def get_transfom_matrix_for_tv(rgb_tr_matrix1, time1, rgb_tr_matrix2, time2, tv_
 		result_matrix[3, j] = translate[j]
 	
 	return result_matrix * tv_to_rgb_matrix
-		
-	
+
+
 def refine_tv_coordinates():
 	global doc
 	
