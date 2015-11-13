@@ -120,7 +120,7 @@ def build_tv_texture(tv_to_rgb_matrix, rgb_times_file, tv_times_file, cameraMatr
 		if rgb_times[rgb_idx][1] > tv_time: # we need to get into interval
 			continue
 		next_idx = rgb_idx + 1
-		while rgb_times[next_idx][1] < tv_time
+		while rgb_times[next_idx][1] < tv_time:
 			next_idx += 1
 		rgb_idx = next_idx - 1
 
@@ -128,7 +128,7 @@ def build_tv_texture(tv_to_rgb_matrix, rgb_times_file, tv_times_file, cameraMatr
 		t1 = rgb_times[rgb_idx][1]
 		rgb_tr_matrix1 = doc.chunk.cameras[camera_name_to_index[rgb_times[rgb_idx]]].transform
 		rgb_tr_matrix2 = doc.chunk.cameras[camera_name_to_index[rgb_times[next_idx]]].transform
-		tr_mat = get_transfom_matrix_for_tv(rgb_tr_matrix1, t1, rgb_tr_matrix2, t2, tv_to_rgb_matrix, tv_time):
+		tr_mat = get_transfom_matrix_for_tv(rgb_tr_matrix1, t1, rgb_tr_matrix2, t2, tv_to_rgb_matrix, tv_time)
 		tv_camera = doc.chunk.cameras[camera_name_to_index[tv_photo]]
 		tv_camera.transform = tr_mat
 		tv_camera.sensor.fx = cameraMatrix_tv[0,0]

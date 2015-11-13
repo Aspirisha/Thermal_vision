@@ -9,10 +9,10 @@
 
 from PySide import QtCore, QtGui
 from dialog_ui import Ui_Dialog
-import PyQt4
 import sys
 
 sys.path.append("../")
+sys.path.append("/home/andy/AU/Geoscan")
 from camera_relative_position import get_tv_to_rgb_matrix
 from get_enabled_cameras import build_tv_texture
 
@@ -176,11 +176,21 @@ class ControlDialog(QtGui.QDialog):
             if self.checked_correpsonfing_photos == 0:
                 self.ui.ok_button.setEnabled(False)
 
+def f():
+    dlg.show()
+
+
 def main():
     qtapp = QtGui.QApplication(sys.argv)
     dlg = ControlDialog()
     dlg.show()
     qtapp.exec_()
 
-if __name__ == '__main__':
-    main()
+if DEBUG:
+    if __name__ == '__main__':
+        main()
+    else:
+        import PhotoScan as ps
+        dlg = ControlDialog()
+        ps.app.addMenuItem("Workflow/Build Thermal Texture...", f)
+        
