@@ -14,7 +14,7 @@ import sys
 sys.path.append("../")
 sys.path.append("/home/andy/AU/Geoscan")
 from camera_relative_position import get_tv_to_rgb_matrix
-from get_enabled_cameras import build_tv_texture
+#from get_enabled_cameras import build_tv_texture #uncomment
 
 def show_all_widgets_in_layout(layout, show):
     items = (layout.itemAt(i) for i in range(layout.count())) 
@@ -71,7 +71,7 @@ class ControlDialog(QtGui.QDialog):
 
         rgb_time_file = "time_rgb.txt"
         tv_time_file = "time_tv.txt"
-        build_tv_texture(A, rgb_time_file, tv_time_file, cameraMatrix_tv, distCoeffs_tv)
+        #build_tv_texture(A, rgb_time_file, tv_time_file, cameraMatrix_tv, distCoeffs_tv) #uncomment
         
 
     def save_matrices_to_file_checked(self, checked):
@@ -186,11 +186,13 @@ def main():
     dlg.show()
     qtapp.exec_()
 
+DEBUG = True
+
 if DEBUG:
     if __name__ == '__main__':
         main()
     else:
-        import PhotoScan as ps
+        #import PhotoScan as ps #uncomment
         dlg = ControlDialog()
-        ps.app.addMenuItem("Workflow/Build Thermal Texture...", f)
+        #ps.app.addMenuItem("Workflow/Build Thermal Texture...", f) #uncomment
         
