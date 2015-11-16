@@ -1,11 +1,4 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'dialog.ui'
-#
-# Created: Mon Nov  9 19:20:19 2015
-#      by: pyside-uic 0.2.15 running on PySide 1.2.4
-#
-# WARNING! All changes made in this file will be lost!
+#/usr/bin/python
 
 from PySide import QtCore, QtGui
 from dialog_ui import Ui_Dialog
@@ -62,27 +55,32 @@ class ControlDialog(QtGui.QDialog):
             rgb_images, tv_images, rgb_relative_file_names, tv_relative_file_names, cell_size)
 
         if self.ui.save_matrices_checkbox.isChecked():
-            f = open(self.file_name_to_save_matrices)
-            f.write(str(cameraMatrix_rgb))
-            f.write(str(distCoeffs_rgb))
-            f.write(str(cameraMatrix_tv))
-            f.write(str(distCoeffs_tv))
+            f = open(self.file_name_to_save_matrices, "w")
+            f.write(str(cameraMatrix_rgb) + "\n")
+            f.write(str(distCoeffs_rgb) + "\n")
+            f.write(str(cameraMatrix_tv) + "\n")
+            f.write(str(distCoeffs_tv) + "\n")
             f.write(str(A))
 
         rgb_time_file = "time_rgb.txt"
         tv_time_file = "time_tv.txt"
+
         #build_tv_texture(A, rgb_time_file, tv_time_file, cameraMatrix_tv, distCoeffs_tv) #uncomment
         
 
     def save_matrices_to_file_checked(self, checked):
         options = QtGui.QFileDialog.Options()
         
+        if not checked:
+            return
+
         file_name, filtr = QtGui.QFileDialog.getSaveFileName(self,
                 "QFileDialog.getSaveFileName()",
                 "calibration.txt",
                 "All Files (*);;Text Files (*.txt)", "", options)
         if file_name is not None:
             self.file_name_to_save_matrices = file_name
+            self.ui.save_matrices_file_edit.setText(file_name)
         else:
             self.ui.save_matrices_checkbox.setChecked(False)
 
