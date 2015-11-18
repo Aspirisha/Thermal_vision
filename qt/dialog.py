@@ -17,6 +17,7 @@ def show_all_widgets_in_layout(layout, show):
         if item.layout():
             show_all_widgets_in_layout(item.layout(), show)
 
+
 class ControlDialog(QtGui.QDialog):
     MIN_CALIBRATION_FILES = 4
     def __init__(self, parent=None):
@@ -51,10 +52,12 @@ class ControlDialog(QtGui.QDialog):
 
         cell_size = float(self.ui.cell_size_edit.text())
 
-        A, cameraMatrix_rgb, distCoeffs_rgb, cameraMatrix_tv, distCoeffs_tv = get_tv_to_rgb_matrix(
-            rgb_images, tv_images, rgb_relative_file_names, tv_relative_file_names, cell_size)
+        self.write_config(rgb_images, tv_images, rgb_relative_file_names, tv_relative_file_names, cell_size)
 
-        if self.ui.save_matrices_checkbox.isChecked():
+        '''A, cameraMatrix_rgb, distCoeffs_rgb, cameraMatrix_tv, distCoeffs_tv = get_tv_to_rgb_matrix(
+            rgb_images, tv_images, rgb_relative_file_names, tv_relative_file_names, cell_size)'''
+
+        '''if self.ui.save_matrices_checkbox.isChecked():
             f = open(self.file_name_to_save_matrices, "w")
             f.write(str(cameraMatrix_rgb) + "\n")
             f.write(str(distCoeffs_rgb) + "\n")
@@ -63,10 +66,26 @@ class ControlDialog(QtGui.QDialog):
             f.write(str(A))
 
         rgb_time_file = "time_rgb.txt"
-        tv_time_file = "time_tv.txt"
+        tv_time_file = "time_tv.txt"'''
 
         #build_tv_texture(A, rgb_time_file, tv_time_file, cameraMatrix_tv, distCoeffs_tv) #uncomment
-        
+    def write_config(self, rgb_images, tv_images, rgb_relative_file_names, tv_relative_file_names, cell_size):
+        f = open('../config.txt', "w")
+        f.write(str(len(rgb_images)) + '\n')
+        for name in rgb_images:
+            f.write(name + '\n')
+
+        f.write(str(len(tv_images)) + '\n')
+        for name in tv_images:
+            f.write(name + '\n')
+        f.write(str(cell_size) + '\n')
+
+        f.write(str(len(rgb_relative_file_names)) + '\n')
+        for r, t in zip(rgb_relative_file_names, tv_relative_file_names):
+            f.write(r + '\n')
+            f.write(t + '\n')
+        f.close()
+
 
     def save_matrices_to_file_checked(self, checked):
         options = QtGui.QFileDialog.Options()
