@@ -2,6 +2,7 @@
 
 from PySide import QtCore, QtGui
 from dialog_ui import Ui_Dialog
+import subprocess
 import sys
 
 sys.path.append("../")
@@ -54,6 +55,7 @@ class ControlDialog(QtGui.QDialog):
 
         self.write_config(rgb_images, tv_images, rgb_relative_file_names, tv_relative_file_names, cell_size)
 
+
         '''A, cameraMatrix_rgb, distCoeffs_rgb, cameraMatrix_tv, distCoeffs_tv = get_tv_to_rgb_matrix(
             rgb_images, tv_images, rgb_relative_file_names, tv_relative_file_names, cell_size)'''
 
@@ -67,6 +69,7 @@ class ControlDialog(QtGui.QDialog):
 
         rgb_time_file = "time_rgb.txt"
         tv_time_file = "time_tv.txt"'''
+        subprocess.call("../../run_calibration.sh", shell=True)
 
         #build_tv_texture(A, rgb_time_file, tv_time_file, cameraMatrix_tv, distCoeffs_tv) #uncomment
     def write_config(self, rgb_images, tv_images, rgb_relative_file_names, tv_relative_file_names, cell_size):
@@ -121,7 +124,7 @@ class ControlDialog(QtGui.QDialog):
         files = QtGui.QFileDialog.getOpenFileNames(
                         self,
                         "Select one or more files to open",
-                        "/home/andy/AU/Geoscan/",
+                        "/home/plaz/Thermal_vision/",
                         "Images (*.png *.xpm *.jpg *.bmp)")[0];
         print("You chose: " + str(files))
         if len(files) >= ControlDialog.MIN_CALIBRATION_FILES:

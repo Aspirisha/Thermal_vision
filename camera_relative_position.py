@@ -70,29 +70,31 @@ def get_tv_to_rgb_matrix(rgb_calibration_file_names, tv_calibration_file_names, 
 
 #ret, mtx, dist, rvecs, tvecs, img_points, objpoints, image_size = test()
 def read_images(f):
-    img_num = int(f.read())
+    img_num = int(f.readline().strip('\n'))
     images = []
     for i in range(img_num):
-        images.append(f.read())
+        images.append(f.readline().strip('\n'))
     return images
 
 def read_pairs(f):
-    pairs_num = int(f.read())
+    pairs_num = int(f.readline().strip('\n'))
     imgs1 = []
     imgs2 = []
     for i in range(pairs_num):
-        imgs1.append(f.read())
-        imgs2.append(f.read())
+        imgs1.append(f.readline().strip('\n'))
+        imgs2.append(f.readline().strip('\n'))
     return imgs1, imgs2
 
 def main():
-    f = open('config', 'r')
+    f = open('config.txt', 'r')
 
     rgb_images = read_images(f)
     tv_images = read_images(f)
-    cell_size = float(f.read())
+    cell_size = float(f.readline().strip('\n'))
     rgb_relative, tv_relative = read_pairs(f)
     f.close()
+
+    print(rgb_images)
 
     A, cameraMatrix_rgb, distCoeffs_rgb, cameraMatrix_tv, distCoeffs_tv = get_tv_to_rgb_matrix(rgb_images, tv_images, rgb_relative, tv_relative, cell_size)
     f = open('calib_data.txt', "w")

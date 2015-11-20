@@ -1,7 +1,5 @@
 #/bin/bash
 
-config_file = $1
+source ~/.virtualenvs/cv/bin/activate
 
-`workon cv`
-
-`python camera_relative_position.py $config_file`
+python camera_relative_position.py
