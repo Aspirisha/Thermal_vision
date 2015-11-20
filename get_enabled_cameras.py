@@ -99,7 +99,13 @@ def rebuild_merged_chunk():
 		
 # returns dictionary: capture_name -> time
 def get_capture_times(file_name):
-	pass
+	f = open(file_name)
+	res = {}
+	for s in f:
+		photo, time = s.split(' ')
+		res[photo] = time
+
+	return res
 
 def build_tv_texture(tv_to_rgb_matrix, rgb_times_file, tv_times_file, cameraMatrix_tv, distCoeffs_tv):
 	camera_name_to_index = {}
@@ -141,8 +147,8 @@ def build_tv_texture(tv_to_rgb_matrix, rgb_times_file, tv_times_file, cameraMatr
 		tv_camera.sensor.p2 = distCoeffs_tv[3]
 		tv_camera.enabled = True
 
-	for c in doc.chunk.cameras:
-		c.enabled = not c.enabled
+	#for c in doc.chunk.cameras:
+	#	c.enabled = not c.enabled
 	doc.chunk.buildUV()
 	doc.chunk.buildTexture(blending=PhotoScan.BlendingMode.AverageBlending)
 		

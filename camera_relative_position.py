@@ -2,6 +2,7 @@ import calibration as calib
 import cv2
 import numpy as np
 import glob
+import json
 
 # number of inner corners of chessboard we would like to match
 inner_width=9
@@ -86,6 +87,9 @@ def read_pairs(f):
     return imgs1, imgs2
 
 def main():
+    import os
+
+    print(os.getcwd())
     f = open('config.txt', 'r')
 
     rgb_images = read_images(f)
@@ -98,11 +102,17 @@ def main():
 
     A, cameraMatrix_rgb, distCoeffs_rgb, cameraMatrix_tv, distCoeffs_tv = get_tv_to_rgb_matrix(rgb_images, tv_images, rgb_relative, tv_relative, cell_size)
     f = open('calib_data.txt', "w")
-    f.write(str(cameraMatrix_rgb) + "\n")
-    f.write(str(distCoeffs_rgb) + "\n")
-    f.write(str(cameraMatrix_tv) + "\n")
-    f.write(str(distCoeffs_tv) + "\n")
-    f.write(str(A))
+
+    json.dump(cameraMatrix_rgb.tolist(), f)
+    f.write('\n')
+    json.dump(distCoeffs_rgb.tolist(), f)
+    f.write('\n')
+    json.dump(cameraMatrix_tv.tolist(), f)
+    f.write('\n')
+    json.dump(distCoeffs_tv.tolist(), f)
+    f.write('\n')
+    json.dump(A.tolist(), f)
+
     f.close()
 
 if __name__ == '__main__':

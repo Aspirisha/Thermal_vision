@@ -2,13 +2,26 @@
 
 from PySide import QtCore, QtGui
 from dialog_ui import Ui_Dialog
+import PhotoScan as ps
 import subprocess
 import sys
+import json
 
 sys.path.append("../")
-sys.path.append("/home/andy/AU/Geoscan")
-from camera_relative_position import get_tv_to_rgb_matrix
+sys.path.append("/home/plaz/Thermal_vision/qt")
+sys.path.append("/home/plaz/Thermal_vision")
+#from camera_relative_position import get_tv_to_rgb_matrix
+#from get_enabled_cameras import build_tv_texture
+
 #from get_enabled_cameras import build_tv_texture #uncomment
+
+def read_matrices(file_name):
+    f = open(file_name, "r")
+    data = []
+    for s in f:
+        lst = json.loads(s)
+        data.append(lst)
+    return ps.Matrix(data[4]), ps.Matrix(data[2]), data[3]
 
 def show_all_widgets_in_layout(layout, show):
     items = (layout.itemAt(i) for i in range(layout.count())) 
@@ -20,7 +33,7 @@ def show_all_widgets_in_layout(layout, show):
 
 
 class ControlDialog(QtGui.QDialog):
-    MIN_CALIBRATION_FILES = 4
+    MIN_CALIBRATION_FILES = 1
     def __init__(self, parent=None):
         super(ControlDialog, self).__init__(parent)
         self.ui = Ui_Dialog()
@@ -39,7 +52,14 @@ class ControlDialog(QtGui.QDialog):
         self.tv_short_file_names = None
         self.checked_correpsonfing_photos = 0
 
-    def ok_pressed(self):      
+    def clear(self):
+        pass
+
+    def ok_pressed(self):
+        from os  import getcwd, chdir  
+
+        cur_dir = getcwd()
+        chdir('/home/plaz/Thermal_vision/qt')  
         rgb_images = self.rgb_calibration_files
         tv_images = self.tv_calibration_files
         
@@ -69,11 +89,30 @@ class ControlDialog(QtGui.QDialog):
 
         rgb_time_file = "time_rgb.txt"
         tv_time_file = "time_tv.txt"'''
-        subprocess.call("../../run_calibration.sh", shell=True)
+        subprocess.call("../run_calibration.sh")
 
-        #build_tv_texture(A, rgb_time_file, tv_time_file, cameraMatrix_tv, distCoeffs_tv) #uncomment
+        print('here')
+
+
+        msgBox = QtGui.QMessageBox()
+        msgBox.setText("Succesfully calibrated cameras.")
+        msgBox.setStandardButtons(QtGui.QMessageBox.Ok)
+        msgBox.show()
+
+
+        rgb_time_file = "time_rgb.txt"
+        tv_time_file = "time_tv.txt"
+        tv_to_rgb_matrix, cameraMatrix_tv, distCoeffs_tv = read_matrices('calib_data.txt')
+        print('tv to rgb matrix: ')
+        print(tv_to_rgb_matrix)
+        print(type(tv_to_rgb_matrix))
+        chdir(cur_dir)  
+        #build_tv_texture(tv_to_rgb_matrix, rgb_time_file, tv_time_file, cameraMatrix_tv, distCoeffs_tv) #uncomment
+        self.clear()
+        self.hide()
+
     def write_config(self, rgb_images, tv_images, rgb_relative_file_names, tv_relative_file_names, cell_size):
-        f = open('../config.txt', "w")
+        f = open('config.txt', "w")
         f.write(str(len(rgb_images)) + '\n')
         for name in rgb_images:
             f.write(name + '\n')
@@ -124,7 +163,7 @@ class ControlDialog(QtGui.QDialog):
         files = QtGui.QFileDialog.getOpenFileNames(
                         self,
                         "Select one or more files to open",
-                        "/home/plaz/Thermal_vision/",
+                        "/home/plaz/Thermal_vision/samples/chessboard_lenovo",
                         "Images (*.png *.xpm *.jpg *.bmp)")[0];
         print("You chose: " + str(files))
         if len(files) >= ControlDialog.MIN_CALIBRATION_FILES:
@@ -206,13 +245,13 @@ def main():
     dlg.show()
     qtapp.exec_()
 
-DEBUG = True
+DEBUG = False
 
 if DEBUG:
     if __name__ == '__main__':
         main()
-    else:
-        #import PhotoScan as ps #uncomment
-        dlg = ControlDialog()
-        #ps.app.addMenuItem("Workflow/Build Thermal Texture...", f) #uncomment
+else:
+    #import PhotoScan as ps #uncomment
+    dlg = ControlDialog()
+    ps.app.addMenuItem("Workflow/Build Thermal Texture...", f) #uncomment
         
