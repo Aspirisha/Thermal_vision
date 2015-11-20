@@ -34,6 +34,11 @@ def show_all_widgets_in_layout(layout, show):
 
 class ControlDialog(QtGui.QDialog):
     MIN_CALIBRATION_FILES = 1
+    RGB_TIME_FILE = 2
+    TV_TIME_FILE = 4
+    CORRESPONDENCE = 1
+    WHEN_CAN_START = CORRESPONDENCE | RGB_TIME_FILE | TV_TIME_FILE
+
     def __init__(self, parent=None):
         super(ControlDialog, self).__init__(parent)
         self.ui = Ui_Dialog()
@@ -43,6 +48,13 @@ class ControlDialog(QtGui.QDialog):
         self.ui.groupBox_3.setEnabled(False)
         self.ui.cell_size_edit.setValidator(QtGui.QDoubleValidator(0, 100, 4, self))
 
+        self.clear()
+
+    def clear(self):
+        self.ui.ok_button.setEnabled(False)
+        self.ui.save_matrices_checkbox.setChecked(False)
+        self.ui.rgb_photos_ok_checkbox.setChecked(False)
+        self.ui.tv_photos_ok_checkbox.setChecked(False)
         self.rgb_checkboxes = []
         self.tv_comboboxes = []
         self.file_name_to_save_matrices = None
@@ -50,9 +62,15 @@ class ControlDialog(QtGui.QDialog):
         self.rgb_calibration_files = None
         self.rgb_short_file_names = None
         self.tv_short_file_names = None
+        self.tv_time_file = None
+        self.rgb_time_file = None
         self.checked_correpsonfing_photos = 0
-
-    def clear(self):
+        self.ui.rgb_tv_table.clearContents()
+        self.ui.rgb_tv_table.setRowCount(0)
+        self.ui.rgb_time_file_edit.setText("")
+        self.ui.tv_time_file_edit.setText("")
+        self.ui.cell_size_edit.setText("0.1")
+        self.can_start_flag = 0
         pass
 
     def ok_pressed(self):
@@ -165,7 +183,6 @@ class ControlDialog(QtGui.QDialog):
                         "Select one or more files to open",
                         "/home/plaz/Thermal_vision/samples/chessboard_lenovo",
                         "Images (*.png *.xpm *.jpg *.bmp)")[0];
-        print("You chose: " + str(files))
         if len(files) >= ControlDialog.MIN_CALIBRATION_FILES:
             return files
         else:
@@ -174,6 +191,14 @@ class ControlDialog(QtGui.QDialog):
                    QtGui.QMessageBox.Ok)
 
             return None
+
+    def select_time_file_clicked(self):
+        file_name = QtGui.QFileDialog.getOpenFileName(
+                        self,
+                        "Select file to open",
+                        "/home/plaz/Thermal_vision/samples/chessboard_lenovo",
+                        "Text files (*.txt)")[0];
+        return file_name
 
     def update_tv_comboboxes(self):
         for i, cbox in enumerate(self.tv_comboboxes):
@@ -228,12 +253,34 @@ class ControlDialog(QtGui.QDialog):
 
     def table_checkbox_clicked(self, checked):
         if checked and self.tv_calibration_files:
-            self.ui.ok_button.setEnabled(True)
+            self.can_start_flag |= ControlDialog.CORRESPONDENCE
             self.checked_correpsonfing_photos += 1
         else:
             self.checked_correpsonfing_photos -= 1
             if self.checked_correpsonfing_photos == 0:
-                self.ui.ok_button.setEnabled(False)
+                self.can_start_flag &= (~ControlDialog.CORRESPONDENCE)
+        
+        self.ui.ok_button.setEnabled(self.can_start_flag == ControlDialog.WHEN_CAN_START)
+
+    def on_select_rgb_time_file_clicked(self):
+        self.rgb_time_file = self.select_time_file_clicked()
+        if self.rgb_time_file:
+            self.can_start_flag |= ControlDialog.RGB_TIME_FILE
+            self.ui.rgb_time_file_edit.setText(self.rgb_time_file)
+        else:
+            self.can_start_flag &= (~ControlDialog.RGB_TIME_FILE)
+            self.ui.rgb_time_file_edit.setText("")
+        self.ui.ok_button.setEnabled(self.can_start_flag == ControlDialog.WHEN_CAN_START)
+
+    def on_select_tv_time_file_clicked(self):
+        self.tv_time_file = self.select_time_file_clicked()
+        if self.tv_time_file:
+            self.can_start_flag |= ControlDialog.TV_TIME_FILE
+            self.ui.tv_time_file_edit.setText(self.tv_time_file)
+        else:
+            self.can_start_flag &= (~ControlDialog.TV_TIME_FILE)
+            self.ui.tv_time_file_edit.setText("")
+        self.ui.ok_button.setEnabled(self.can_start_flag == ControlDialog.WHEN_CAN_START)
 
 def f():
     dlg.show()

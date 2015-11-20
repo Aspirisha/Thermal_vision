@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>490</width>
-    <height>623</height>
+    <height>690</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -32,7 +32,7 @@
       <property name="geometry">
        <rect>
         <x>60</x>
-        <y>550</y>
+        <y>620</y>
         <width>341</width>
         <height>51</height>
        </rect>
@@ -701,19 +701,6 @@
          </item>
         </layout>
        </widget>
-       <widget class="QLabel" name="label_2">
-        <property name="geometry">
-         <rect>
-          <x>60</x>
-          <y>0</y>
-          <width>67</width>
-          <height>17</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>TextLabel</string>
-        </property>
-       </widget>
       </widget>
      </widget>
      <widget class="QGroupBox" name="groupBox_3">
@@ -756,6 +743,38 @@
         </item>
        </layout>
       </widget>
+     </widget>
+     <widget class="QWidget" name="formLayoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>540</y>
+        <width>451</width>
+        <height>71</height>
+       </rect>
+      </property>
+      <layout class="QFormLayout" name="formLayout_2">
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="rgb_time_file_edit"/>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="tv_time_file_edit"/>
+       </item>
+       <item row="0" column="0">
+        <widget class="QPushButton" name="rgb_time_button">
+         <property name="text">
+          <string>Select RGB time file</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QPushButton" name="tv_time_button">
+         <property name="text">
+          <string>Select TV time file</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </widget>
    </item>
@@ -907,6 +926,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>rgb_time_button</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>on_select_rgb_time_file_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>96</x>
+     <y>563</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>244</x>
+     <y>344</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tv_time_button</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>on_select_tv_time_file_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>91</x>
+     <y>596</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>244</x>
+     <y>344</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>ok_pressed()</slot>
@@ -919,5 +970,7 @@
   <slot>select_matrices_radio_clicked()</slot>
   <slot>readonly_checkboxes_checked()</slot>
   <slot>table_cell_clicked(int,int)</slot>
+  <slot>on_select_rgb_time_file_clicked()</slot>
+  <slot>on_select_tv_time_file_clicked()</slot>
  </slots>
 </ui>
