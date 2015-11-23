@@ -97,21 +97,6 @@ class ControlDialog(QtGui.QDialog):
 
         config_abs_path = self.write_config(rgb_images, tv_images, rgb_relative_file_names, tv_relative_file_names, cell_size)
 
-
-        '''A, cameraMatrix_rgb, distCoeffs_rgb, cameraMatrix_tv, distCoeffs_tv = get_tv_to_rgb_matrix(
-            rgb_images, tv_images, rgb_relative_file_names, tv_relative_file_names, cell_size)'''
-
-        '''if self.ui.save_matrices_checkbox.isChecked():
-            f = open(self.file_name_to_save_matrices, "w")
-            f.write(str(cameraMatrix_rgb) + "\n")
-            f.write(str(distCoeffs_rgb) + "\n")
-            f.write(str(cameraMatrix_tv) + "\n")
-            f.write(str(distCoeffs_tv) + "\n")
-            f.write(str(A))
-
-        rgb_time_file = "time_rgb.txt"
-        tv_time_file = "time_tv.txt"'''
-
         commandline_args = "--config " + config_abs_path
         commandline_args += (" --save-file " + self.file_name_to_save_matrices)
 
@@ -124,8 +109,9 @@ class ControlDialog(QtGui.QDialog):
         msgBox.show()
 
 
-        rgb_time_file = "time_rgb.txt"
-        tv_time_file = "time_tv.txt"
+        rgb_time_file = self.ui.rgb_time_file_edit.text()
+        tv_time_file = self.ui.tv_time_file_edit.text()
+
         tv_to_rgb_matrix, cameraMatrix_tv, distCoeffs_tv = read_matrices(self.file_name_to_save_matrices)
         print('tv to rgb matrix: ')
         print(tv_to_rgb_matrix)
