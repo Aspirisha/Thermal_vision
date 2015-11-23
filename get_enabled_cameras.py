@@ -3,6 +3,7 @@ import PhotoScan
 import shutil
 import copy
 from collections import OrderedDict
+import math
 
 aligned_rgb_chunk_idx = 0
 unaligned_tv_chunk_idx = 1
@@ -100,52 +101,79 @@ def rebuild_merged_chunk():
 # returns dictionary: capture_name -> time
 def get_capture_times(file_name):
 	f = open(file_name)
-	res = {}
-	for s in f:
-		photo, time = s.split(' ')
-		res[photo] = time
-
-	return res
+	return [(lambda x: (x[0], float(x[1])))(x.split(' ')) for x in f]
 
 def build_tv_texture(tv_to_rgb_matrix, rgb_times_file, tv_times_file, cameraMatrix_tv, distCoeffs_tv):
 	camera_name_to_index = {}
+	doc = PhotoScan.app.document
+
 	for idx, c in enumerate(doc.chunk.cameras):
 		camera_name_to_index[c.label] = idx
 
 	rgb_times = get_capture_times(rgb_times_file) # 
 	tv_times = get_capture_times(tv_times_file)
-	sorted_tv_times = OrderedDict(sorted(d.items(), key=lambda x: x[1]))
-	sorted_rgb_times = OrderedDict(sorted(d.items(), key=lambda x: x[1]))
 
-	rgb_times = [(k,v) for k,v in sorted_rgb_times.items()]
+	tv_times.sort(key=lambda x: x[1])
+	rgb_times.sort(key=lambda x: x[1])
+
+	print(tv_times)
+	print(rgb_times)
+
 	rgb_idx = 0
 	for c in doc.chunk.cameras:
 		c.enabled = False
 
-	for tv_photo, tv_time in sorted_tv_times.iteritems():
+	for tv_photo, tv_time in tv_times:
+		print('tv_time = ' + str(tv_time))
 		if rgb_times[rgb_idx][1] > tv_time: # we need to get into interval
 			continue
 		next_idx = rgb_idx + 1
+		if next_idx >= len(rgb_times):
+			break
+
 		while rgb_times[next_idx][1] < tv_time:
 			next_idx += 1
-		rgb_idx = next_idx - 1
+			if next_idx >= len(rgb_times):
+				break
+		else:
+			print('here')
+			rgb_idx = next_idx - 1
 
-		t2 = rgb_times[next_idx][1]
-		t1 = rgb_times[rgb_idx][1]
-		rgb_tr_matrix1 = doc.chunk.cameras[camera_name_to_index[rgb_times[rgb_idx]]].transform
-		rgb_tr_matrix2 = doc.chunk.cameras[camera_name_to_index[rgb_times[next_idx]]].transform
-		tr_mat = get_transfom_matrix_for_tv(rgb_tr_matrix1, t1, rgb_tr_matrix2, t2, tv_to_rgb_matrix, tv_time)
-		tv_camera = doc.chunk.cameras[camera_name_to_index[tv_photo]]
-		tv_camera.transform = tr_mat
-		tv_camera.sensor.fx = cameraMatrix_tv[0,0]
-		tv_camera.sensor.fy = cameraMatrix_tv[1,1]
-		tv_camera.sensor.cx = cameraMatrix_tv[0,2]
-		tv_camera.sensor.cy = cameraMatrix_tv[1,2]
-		tv_camera.sensor.k1 = distCoeffs_tv[0]
-		tv_camera.sensor.k2 = distCoeffs_tv[1]
-		tv_camera.sensor.p1 = distCoeffs_tv[2]
-		tv_camera.sensor.p2 = distCoeffs_tv[3]
-		tv_camera.enabled = True
+			name2, t2 = rgb_times[next_idx]
+			name1, t1 = rgb_times[rgb_idx]
+			print('rgb_idx: ' + str(rgb_idx))
+			print('next_idx: ' + str(next_idx))
+			print('name1: ' + name1)
+			print('name2: ' + name2)
+
+			idx1 = camera_name_to_index.get(name1)
+			idx2 = camera_name_to_index.get(name2)
+			print(idx1)
+			print(idx2)
+
+			if idx1 is None or idx2 is None:
+				continue
+
+			rgb_tr_matrix1 = doc.chunk.cameras[idx1].transform
+			rgb_tr_matrix2 = doc.chunk.cameras[idx2].transform
+
+			if not rgb_tr_matrix1 or not rgb_tr_matrix2:
+				continue
+
+			print('there')
+			tr_mat = get_transfom_matrix_for_tv(rgb_tr_matrix1, t1, rgb_tr_matrix2, t2, tv_to_rgb_matrix, tv_time)
+			tv_camera = doc.chunk.cameras[camera_name_to_index[tv_photo]]
+			tv_camera.transform = tr_mat
+			tv_camera.sensor.calibration.fx = cameraMatrix_tv[0,0]
+			tv_camera.sensor.calibration.fy = cameraMatrix_tv[1,1]
+			tv_camera.sensor.calibration.cx = cameraMatrix_tv[0,2]
+			tv_camera.sensor.calibration.cy = cameraMatrix_tv[1,2]
+			tv_camera.sensor.calibration.k1 = distCoeffs_tv[0]
+			tv_camera.sensor.calibration.k2 = distCoeffs_tv[1]
+			tv_camera.sensor.calibration.p1 = distCoeffs_tv[2]
+			tv_camera.sensor.calibration.p2 = distCoeffs_tv[3]
+			tv_camera.enabled = True
+
 
 	#for c in doc.chunk.cameras:
 	#	c.enabled = not c.enabled
@@ -243,9 +271,9 @@ def scale_transform_matrix(m, chunk_scale):
 
 def slerp(v1, v2, t):
 	cos_omega = v1 * v2 / (v1.norm() * v2.norm())
-	sin_omega = sqrt(1 - cos_omega ** 2)
-	omega = acos(cos_omega)
-	return (sin((1-t) * omega) * v1 + sin(t * omega) * v2)/sin(omega)
+	sin_omega = math.sqrt(1 - cos_omega ** 2)
+	omega = math.acos(cos_omega)
+	return (math.sin((1-t) * omega) * v1 + math.sin(t * omega) * v2)/math.sin(omega)
 
 def lerp(v1, v2, t):
 	return (v1 * (1 - t) + v2 * t)
@@ -266,7 +294,7 @@ def get_transfom_matrix_for_tv(rgb_tr_matrix1, time1, rgb_tr_matrix2, time2, tv_
 		for j in range(0, 2):
 			result_matrix[i, j] = v[j]
 	
-	translate = lerp(rgb_tr_matrix1.col(4), rgb_tr_matrix2.col(4), t)
+	translate = lerp(rgb_tr_matrix1.col(3), rgb_tr_matrix2.col(3), t)
 	for j in range(0, 2):
 		result_matrix[3, j] = translate[j]
 	

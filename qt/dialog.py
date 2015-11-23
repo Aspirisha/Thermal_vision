@@ -14,7 +14,7 @@ sys.path.append("/home/plaz/Thermal_vision")
 #from camera_relative_position import get_tv_to_rgb_matrix
 #from get_enabled_cameras import build_tv_texture
 
-#from get_enabled_cameras import build_tv_texture #uncomment
+from get_enabled_cameras import build_tv_texture #uncomment
 
 def read_matrices(file_name):
     f = open(file_name, "r")
@@ -22,7 +22,7 @@ def read_matrices(file_name):
     for s in f:
         lst = json.loads(s)
         data.append(lst)
-    return ps.Matrix(data[4]), ps.Matrix(data[2]), data[3]
+    return ps.Matrix(data[4]), ps.Matrix(data[2]), [float(x) for x in data[3][0]]
 
 def show_all_widgets_in_layout(layout, show):
     items = (layout.itemAt(i) for i in range(layout.count())) 
@@ -130,7 +130,9 @@ class ControlDialog(QtGui.QDialog):
         print(tv_to_rgb_matrix)
         print(type(tv_to_rgb_matrix))
         chdir(cur_dir)  
-        #build_tv_texture(tv_to_rgb_matrix, rgb_time_file, tv_time_file, cameraMatrix_tv, distCoeffs_tv) #uncomment
+
+        build_tv_texture(tv_to_rgb_matrix, rgb_time_file, tv_time_file, cameraMatrix_tv, distCoeffs_tv) #uncomment
+        
         self.clear()
         self.hide()
 
