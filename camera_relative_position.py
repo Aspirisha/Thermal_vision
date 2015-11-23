@@ -3,6 +3,8 @@ import cv2
 import numpy as np
 import glob
 import json
+import sys
+from argparse import ArgumentParser
 
 # number of inner corners of chessboard we would like to match
 inner_width=9
@@ -90,7 +92,13 @@ def main():
     import os
 
     print(os.getcwd())
-    f = open('config.txt', 'r')
+    
+    parser = ArgumentParser()
+    parser.add_argument('-c', '--config', action='store', type=str, dest='config_file', help='Calibration configuration file')
+    parser.add_argument('-s', '--save-file', action='store', type=str, dest='save_file', help='File to save calibration results')
+    args = parser.parse_args()
+
+    f = open(args.config_file, 'r')
 
     rgb_images = read_images(f)
     tv_images = read_images(f)
@@ -98,10 +106,8 @@ def main():
     rgb_relative, tv_relative = read_pairs(f)
     f.close()
 
-    print(rgb_images)
-
     A, cameraMatrix_rgb, distCoeffs_rgb, cameraMatrix_tv, distCoeffs_tv = get_tv_to_rgb_matrix(rgb_images, tv_images, rgb_relative, tv_relative, cell_size)
-    f = open('calib_data.txt', "w")
+    f = open(args.save_file, "w")
 
     json.dump(cameraMatrix_rgb.tolist(), f)
     f.write('\n')

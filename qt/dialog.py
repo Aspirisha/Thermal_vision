@@ -6,6 +6,7 @@ import PhotoScan as ps
 import subprocess
 import sys
 import json
+import os
 
 sys.path.append("../")
 sys.path.append("/home/plaz/Thermal_vision/qt")
@@ -38,6 +39,8 @@ class ControlDialog(QtGui.QDialog):
     TV_TIME_FILE = 4
     CORRESPONDENCE = 1
     WHEN_CAN_START = CORRESPONDENCE | RGB_TIME_FILE | TV_TIME_FILE
+    DEFAULT_LOCATION = "/home/plaz/Thermal_vision/samples/chessboard_lenovo"
+    DEFAULT_MATRICES_FILE = os.path.abspath('calib_data.txt')
 
     def __init__(self, parent=None):
         super(ControlDialog, self).__init__(parent)
@@ -71,6 +74,7 @@ class ControlDialog(QtGui.QDialog):
         self.ui.tv_time_file_edit.setText("")
         self.ui.cell_size_edit.setText("0.1")
         self.can_start_flag = 0
+        self.file_name_to_save_matrices = ControlDialog.DEFAULT_MATRICES_FILE
         pass
 
     def ok_pressed(self):
@@ -91,7 +95,7 @@ class ControlDialog(QtGui.QDialog):
 
         cell_size = float(self.ui.cell_size_edit.text())
 
-        self.write_config(rgb_images, tv_images, rgb_relative_file_names, tv_relative_file_names, cell_size)
+        config_abs_path = self.write_config(rgb_images, tv_images, rgb_relative_file_names, tv_relative_file_names, cell_size)
 
 
         '''A, cameraMatrix_rgb, distCoeffs_rgb, cameraMatrix_tv, distCoeffs_tv = get_tv_to_rgb_matrix(
@@ -107,10 +111,12 @@ class ControlDialog(QtGui.QDialog):
 
         rgb_time_file = "time_rgb.txt"
         tv_time_file = "time_tv.txt"'''
-        subprocess.call("../run_calibration.sh")
 
-        print('here')
+        commandline_args = "--config " + config_abs_path
+        commandline_args += (" --save-file " + self.file_name_to_save_matrices)
 
+        print(("../run_calibration.sh " + commandline_args).split(' '))
+        subprocess.call(("../run_calibration.sh " + commandline_args).split(' '))
 
         msgBox = QtGui.QMessageBox()
         msgBox.setText("Succesfully calibrated cameras.")
@@ -120,7 +126,7 @@ class ControlDialog(QtGui.QDialog):
 
         rgb_time_file = "time_rgb.txt"
         tv_time_file = "time_tv.txt"
-        tv_to_rgb_matrix, cameraMatrix_tv, distCoeffs_tv = read_matrices('calib_data.txt')
+        tv_to_rgb_matrix, cameraMatrix_tv, distCoeffs_tv = read_matrices(self.file_name_to_save_matrices)
         print('tv to rgb matrix: ')
         print(tv_to_rgb_matrix)
         print(type(tv_to_rgb_matrix))
@@ -130,7 +136,9 @@ class ControlDialog(QtGui.QDialog):
         self.hide()
 
     def write_config(self, rgb_images, tv_images, rgb_relative_file_names, tv_relative_file_names, cell_size):
-        f = open('config.txt', "w")
+        config_file_name = 'config.txt'
+        abs_path = os.path.abspath(config_file_name)
+        f = open(config_file_name, "w")
         f.write(str(len(rgb_images)) + '\n')
         for name in rgb_images:
             f.write(name + '\n')
@@ -145,6 +153,7 @@ class ControlDialog(QtGui.QDialog):
             f.write(r + '\n')
             f.write(t + '\n')
         f.close()
+        return abs_path
 
 
     def save_matrices_to_file_checked(self, checked):
@@ -162,6 +171,7 @@ class ControlDialog(QtGui.QDialog):
             self.ui.save_matrices_file_edit.setText(file_name)
         else:
             self.ui.save_matrices_checkbox.setChecked(False)
+            self.file_name_to_save_matrices = ControlDialog.DEFAULT_MATRICES_FILE
 
 
     def use_matrices_from_file_clicked(self):
@@ -181,7 +191,7 @@ class ControlDialog(QtGui.QDialog):
         files = QtGui.QFileDialog.getOpenFileNames(
                         self,
                         "Select one or more files to open",
-                        "/home/plaz/Thermal_vision/samples/chessboard_lenovo",
+                        ControlDialog.DEFAULT_LOCATION,
                         "Images (*.png *.xpm *.jpg *.bmp)")[0];
         if len(files) >= ControlDialog.MIN_CALIBRATION_FILES:
             return files
@@ -196,7 +206,7 @@ class ControlDialog(QtGui.QDialog):
         file_name = QtGui.QFileDialog.getOpenFileName(
                         self,
                         "Select file to open",
-                        "/home/plaz/Thermal_vision/samples/chessboard_lenovo",
+                        ControlDialog.DEFAULT_LOCATION,
                         "Text files (*.txt)")[0];
         return file_name
 
