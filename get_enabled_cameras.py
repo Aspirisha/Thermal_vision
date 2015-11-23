@@ -272,7 +272,7 @@ def scale_transform_matrix(m, chunk_scale):
 def slerp(v1, v2, t):
 	cos_omega = v1 * v2 / (v1.norm() * v2.norm())
 	sin_omega = math.sqrt(1 - cos_omega ** 2)
-	omega = math.acos(cos_omega)
+	omega = math.acos(cos_omega) / 2.0
 	return (math.sin((1-t) * omega) * v1 + math.sin(t * omega) * v2)/math.sin(omega)
 
 def lerp(v1, v2, t):
