@@ -15,7 +15,7 @@ def get_image_points(fname, inner_width, inner_height):
 
     # If found, add object points, image points (after refining them)
     if ret == True:
-        print("succsess with " + fname)
+        print("success with " + fname)
 
         corners2 = cv2.cornerSubPix(gray,corners,(11,11),(-1,-1),criteria)
         img = cv2.drawChessboardCorners(img, (inner_width, inner_height), corners2,ret)

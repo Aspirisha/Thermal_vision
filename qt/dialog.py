@@ -39,7 +39,7 @@ class ControlDialog(QtGui.QDialog):
     TV_TIME_FILE = 4
     CORRESPONDENCE = 1
     WHEN_CAN_START = CORRESPONDENCE | RGB_TIME_FILE | TV_TIME_FILE
-    DEFAULT_LOCATION = "/home/plaz/Thermal_vision/samples/chessboard_lenovo"
+    DEFAULT_LOCATION = "/home/plaz/Thermal_vision/samples/rgb"
     DEFAULT_MATRICES_FILE = os.path.abspath('calib_data.txt')
 
     def __init__(self, parent=None):
@@ -75,6 +75,7 @@ class ControlDialog(QtGui.QDialog):
         self.ui.cell_size_edit.setText("0.1")
         self.can_start_flag = 0
         self.file_name_to_save_matrices = ControlDialog.DEFAULT_MATRICES_FILE
+        self.ui.save_matrices_file_edit.setText("")
         pass
 
     def ok_pressed(self):
@@ -91,7 +92,7 @@ class ControlDialog(QtGui.QDialog):
             if not chbox.isChecked():
                 continue
             rgb_relative_file_names.append(self.rgb_calibration_files[i])
-            tv_relative_file_names.append(self.tv_calibration_files[i])
+            tv_relative_file_names.append(self.tv_calibration_files[self.tv_comboboxes[i].currentIndex()])
 
         cell_size = float(self.ui.cell_size_edit.text())
 
@@ -100,8 +101,20 @@ class ControlDialog(QtGui.QDialog):
         commandline_args = "--config " + config_abs_path
         commandline_args += (" --save-file " + self.file_name_to_save_matrices)
 
-        print(("../run_calibration.sh " + commandline_args).split(' '))
-        subprocess.call(("../run_calibration.sh " + commandline_args).split(' '))
+        print(("../run_calibration.sh " + commandline_args).split(' '), end=None)
+       
+        #with open('query.txt','w') as stdout:
+        p = subprocess.call(("../run_calibration.sh " + commandline_args).split(' '))
+
+        '''while True:
+            print('here')
+            output = p.stdout.readline()
+            if output == '' and p.poll() is not None:
+                break
+            if output:
+                print (output.strip())
+
+            rc = p.poll()'''
 
         msgBox = QtGui.QMessageBox()
         msgBox.setText("Succesfully calibrated cameras.")
