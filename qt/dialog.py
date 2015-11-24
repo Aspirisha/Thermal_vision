@@ -12,10 +12,8 @@ from xml.dom.minidom import getDOMImplementation
 sys.path.append("../")
 sys.path.append("/home/plaz/Thermal_vision/qt")
 sys.path.append("/home/plaz/Thermal_vision")
-#from camera_relative_position import get_tv_to_rgb_matrix
-#from get_enabled_cameras import build_tv_texture
 
-from get_enabled_cameras import build_tv_texture #uncomment
+from relalign import build_tv_texture #uncomment
 
 def write_tv_calibration_to_file(file_name):
     pass
@@ -317,5 +315,5 @@ if DEBUG:
 else:
     #import PhotoScan as ps #uncomment
     dlg = ControlDialog()
-    ps.app.addMenuItem("Workflow/Build Thermal Texture...", f) #uncomment
+    ps.app.addMenuItem("Workflow/Relative Photo Alignemnt...", f) #uncomment
         
