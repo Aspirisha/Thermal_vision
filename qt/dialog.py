@@ -7,16 +7,31 @@ import subprocess
 import sys
 import json
 import os
-from xml.dom.minidom import getDOMImplementation
+import xml.dom.minidom as xdm
 
 sys.path.append("../")
 sys.path.append("/home/plaz/Thermal_vision/qt")
 sys.path.append("/home/plaz/Thermal_vision")
 
-from relalign import build_tv_texture #uncomment
+from relalign import get_default_calibration_file, build_tv_texture
 
-def write_tv_calibration_to_file(file_name):
-    pass
+def write_tv_calibration_to_file(file_name, tv_time_file, camera_matrix, dist_coeffs):
+    get_default_calibration_file(file_name, tv_time_file)
+    doc = xdm.parse(file_name)
+
+    doc.getElementsByTagName("fx")[0].firstChild.nodeValue = camera_matrix[0,0]
+    doc.getElementsByTagName("fy")[0].firstChild.nodeValue = camera_matrix[1,1]
+    doc.getElementsByTagName("cx")[0].firstChild.nodeValue = camera_matrix[0,2]
+    doc.getElementsByTagName("cy")[0].firstChild.nodeValue = camera_matrix[1,2] 
+    doc.getElementsByTagName("k1")[0].firstChild.nodeValue = dist_coeffs[0]
+    doc.getElementsByTagName("k2")[0].firstChild.nodeValue = dist_coeffs[1]
+    doc.getElementsByTagName("p1")[0].firstChild.nodeValue = dist_coeffs[3]
+    doc.getElementsByTagName("p2")[0].firstChild.nodeValue = dist_coeffs[4]
+
+    doc.writexml(open(file_name, 'w'),
+           indent="",
+           addindent="  ",
+           encoding="utf-8")
 
 def read_matrices(file_name):
     f = open(file_name, "r")
@@ -24,9 +39,12 @@ def read_matrices(file_name):
     for s in f:
         lst = json.loads(s)
         data.append(lst)
-    write_tv_calibration_to_file('tv_calibration.txt')
 
-    return ps.Matrix(data[4]), ps.Matrix(data[2]), [float(x) for x in data[3][0]]
+    tv_to_rgb_matrix = ps.Matrix(data[4])
+    cameraMatrix_tv = ps.Matrix(data[2])
+    distCoeffs_tv = [float(x) for x in data[3][0]]
+
+    return tv_to_rgb_matrix, cameraMatrix_tv, distCoeffs_tv 
 
 def show_all_widgets_in_layout(layout, show):
     items = (layout.itemAt(i) for i in range(layout.count())) 
@@ -130,12 +148,14 @@ class ControlDialog(QtGui.QDialog):
         tv_time_file = self.ui.tv_time_file_edit.text()
 
         tv_to_rgb_matrix, cameraMatrix_tv, distCoeffs_tv = read_matrices(self.file_name_to_save_matrices)
-        print('tv to rgb matrix: ')
-        print(tv_to_rgb_matrix)
-        print(type(tv_to_rgb_matrix))
+
+        # TODO: calibration file name is hardcoded now
+        calibration_file_name = '/home/plaz/tv_calibration.txt'
+        write_tv_calibration_to_file(calibration_file_name, tv_time_file, cameraMatrix_tv, distCoeffs_tv)
+
         chdir(cur_dir)  
 
-        build_tv_texture(tv_to_rgb_matrix, rgb_time_file, tv_time_file, cameraMatrix_tv, distCoeffs_tv) #uncomment
+        build_tv_texture(tv_to_rgb_matrix, rgb_time_file, tv_time_file, calibration_file_name) #uncomment
         
         self.clear()
         self.hide()
@@ -315,5 +335,5 @@ if DEBUG:
 else:
     #import PhotoScan as ps #uncomment
     dlg = ControlDialog()
-    ps.app.addMenuItem("Workflow/Relative Photo Alignemnt...", f) #uncomment
+    ps.app.addMenuItem("Workflow/Relative Photo Alignment...", f) #uncomment
         

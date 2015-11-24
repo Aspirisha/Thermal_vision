@@ -2,12 +2,24 @@ import PhotoScan
 import copy
 import math
 
+def get_default_calibration_file(file_name, tv_times_file):
+	f = open(tv_times_file)
+	name = f.readline().split(' ')[0]
+	doc = PhotoScan.app.document
+
+	sensor = None
+	for c in doc.chunk.cameras:
+		if c.label == name:
+			sensor = c.sensor
+			break
+	sensor.calibration.save(file_name)
+
 # returns dictionary: capture_name -> time
 def get_capture_times(file_name):
 	f = open(file_name)
 	return [(lambda x: (x[0], float(x[1])))(x.split(' ')) for x in f]
 
-def build_tv_texture(tv_to_rgb_matrix, rgb_times_file, tv_times_file, cameraMatrix_tv, distCoeffs_tv):
+def build_tv_texture(tv_to_rgb_matrix, rgb_times_file, tv_times_file, calibration_file):
 	camera_name_to_index = {}
 	doc = PhotoScan.app.document
 
@@ -29,6 +41,11 @@ def build_tv_texture(tv_to_rgb_matrix, rgb_times_file, tv_times_file, cameraMatr
 
 	chunk_scale = get_chunk_scale(doc.chunk)
 	tv_to_rgb_matrix = scale_transform_matrix(tv_to_rgb_matrix, chunk_scale)
+
+    # apply calibration to cameras sensor
+    # we can take any camera!
+	tv_camera = doc.chunk.cameras[camera_name_to_index[tv_times[0][0]]]
+	tv_camera.sensor.calibration.load(calibration_file)
 
 	for tv_photo, tv_time in tv_times:
 		print('tv_time = ' + str(tv_time))
@@ -71,14 +88,6 @@ def build_tv_texture(tv_to_rgb_matrix, rgb_times_file, tv_times_file, cameraMatr
 			tr_mat = get_transfom_matrix_for_tv(rgb_tr_matrix1, t1, rgb_tr_matrix2, t2, tv_to_rgb_matrix, tv_time)
 			tv_camera = doc.chunk.cameras[camera_name_to_index[tv_photo]]
 			tv_camera.transform = tr_mat
-			tv_camera.sensor.calibration.fx = cameraMatrix_tv[0,0]
-			tv_camera.sensor.calibration.fy = cameraMatrix_tv[1,1]
-			tv_camera.sensor.calibration.cx = cameraMatrix_tv[0,2]
-			tv_camera.sensor.calibration.cy = cameraMatrix_tv[1,2]
-			tv_camera.sensor.calibration.k1 = distCoeffs_tv[0]
-			tv_camera.sensor.calibration.k2 = distCoeffs_tv[1]
-			tv_camera.sensor.calibration.p1 = distCoeffs_tv[2]
-			tv_camera.sensor.calibration.p2 = distCoeffs_tv[3]
 			tv_camera.enabled = True
 
 	#doc.chunk.buildUV()
