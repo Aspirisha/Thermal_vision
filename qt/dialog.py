@@ -7,6 +7,7 @@ import subprocess
 import sys
 import json
 import os
+from xml.dom.minidom import getDOMImplementation
 
 sys.path.append("../")
 sys.path.append("/home/plaz/Thermal_vision/qt")
@@ -16,12 +17,17 @@ sys.path.append("/home/plaz/Thermal_vision")
 
 from get_enabled_cameras import build_tv_texture #uncomment
 
+def write_tv_calibration_to_file(file_name):
+    pass
+
 def read_matrices(file_name):
     f = open(file_name, "r")
     data = []
     for s in f:
         lst = json.loads(s)
         data.append(lst)
+    write_tv_calibration_to_file('tv_calibration.txt')
+
     return ps.Matrix(data[4]), ps.Matrix(data[2]), [float(x) for x in data[3][0]]
 
 def show_all_widgets_in_layout(layout, show):

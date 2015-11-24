@@ -178,7 +178,7 @@ def build_tv_texture(tv_to_rgb_matrix, rgb_times_file, tv_times_file, cameraMatr
 	#for c in doc.chunk.cameras:
 	#	c.enabled = not c.enabled
 	doc.chunk.buildUV()
-	doc.chunk.buildTexture(blending=PhotoScan.BlendingMode.AverageBlending)
+	doc.chunk.buildTexture(blending=PhotoScan.BlendingMode.MosaicBlending)
 		
 def main(need_rebuild):	
 	global result_chunk_idx
@@ -271,7 +271,6 @@ def scale_transform_matrix(m, chunk_scale):
 
 def slerp(v1, v2, t):
 	cos_omega = v1 * v2 / (v1.norm() * v2.norm())
-	sin_omega = math.sqrt(1 - cos_omega ** 2)
 	omega = math.acos(cos_omega) / 2.0
 	return (math.sin((1-t) * omega) * v1 + math.sin(t * omega) * v2)/math.sin(omega)
 
@@ -285,20 +284,20 @@ def get_transfom_matrix_for_tv(rgb_tr_matrix1, time1, rgb_tr_matrix2, time2, tv_
 	# decompose rgb_tr_matrix1, rgb_tr_matrix2 into (R1, T1) and (R2, T2). 
 	# apply slerp to R1 and R2 column-wise, apply lerp to T1 and T2
 	t = (time - time1) / (time2 - time1)
-	
+	t = 0 
 	result_matrix = PhotoScan.Matrix.diag(PhotoScan.Vector([0, 0, 0, 1]))
-	for i in range(0, 2):
+	for i in range(3):
 		v1 = rgb_tr_matrix1.col(i).copy()
 		v2 = rgb_tr_matrix2.col(i).copy()
 		v = slerp(v1, v2, t)
-		for j in range(0, 2):
-			result_matrix[i, j] = v[j]
+		for j in range(3):
+			result_matrix[j, i] = v[j]
 	
 	translate = lerp(rgb_tr_matrix1.col(3), rgb_tr_matrix2.col(3), t)
-	for j in range(0, 2):
-		result_matrix[3, j] = translate[j]
+	for j in range(3):
+		result_matrix[j, 3] = translate[j]
 	
-	return result_matrix * tv_to_rgb_matrix
+	return result_matrix# * tv_to_rgb_matrix
 
 
 def refine_tv_coordinates():
