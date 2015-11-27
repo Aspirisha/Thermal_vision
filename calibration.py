@@ -53,7 +53,7 @@ def calibrate_camera(images, inner_width, inner_height):
 
     image_size = get_image_size(fname)
 
-    return cv2.calibrateCamera(objpoints, imgpoints, image_size, None, None) + (imgpoints, objpoints, file_names)
+    return cv2.calibrateCamera(objpoints, imgpoints, image_size, None, distCoeffs = np.zeros(5), flags=cv2.CALIB_ZERO_TANGENT_DIST) + (imgpoints, objpoints, file_names)
 
 def calibrate_rgb_and_tv(objpoints, img_points_rgb, img_points_tv, image_size, rgb_camera_matrix, rgb_dist_coeffs, tv_camera_matrix, tv_dist_coeffs):
     crit = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)

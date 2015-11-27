@@ -25,8 +25,9 @@ def write_tv_calibration_to_file(file_name, tv_time_file, camera_matrix, dist_co
     doc.getElementsByTagName("cy")[0].firstChild.nodeValue = camera_matrix[1,2] 
     doc.getElementsByTagName("k1")[0].firstChild.nodeValue = dist_coeffs[0]
     doc.getElementsByTagName("k2")[0].firstChild.nodeValue = dist_coeffs[1]
-    #doc.getElementsByTagName("p1")[0].firstChild.nodeValue = dist_coeffs[3]
-    #doc.getElementsByTagName("p2")[0].firstChild.nodeValue = dist_coeffs[4]
+    doc.getElementsByTagName("k3")[0].firstChild.nodeValue = dist_coeffs[4]
+    #doc.getElementsByTagName("p1")[0].firstChild.nodeValue = dist_coeffs[2]
+    #doc.getElementsByTagName("p2")[0].firstChild.nodeValue = dist_coeffs[3]
 
     doc.writexml(open(file_name, 'w'),
            indent="",
@@ -42,7 +43,7 @@ def read_matrices(file_name):
 
     tv_to_rgb_matrix = ps.Matrix(data[4])
     cameraMatrix_tv = ps.Matrix(data[2])
-    distCoeffs_tv = [float(x) for x in data[3][0]]
+    distCoeffs_tv = [float(x) for x in data[3]]
 
     return tv_to_rgb_matrix, cameraMatrix_tv, distCoeffs_tv 
 
@@ -75,8 +76,7 @@ class ControlDialog(QtGui.QDialog):
 
         self.clear()
 
-    def clear(self):
-        self.ui.ok_button.setEnabled(False)
+    def clear_calculate_matrices_data(self):
         self.ui.save_matrices_checkbox.setChecked(False)
         self.ui.rgb_photos_ok_checkbox.setChecked(False)
         self.ui.tv_photos_ok_checkbox.setChecked(False)
@@ -87,24 +87,32 @@ class ControlDialog(QtGui.QDialog):
         self.rgb_calibration_files = None
         self.rgb_short_file_names = None
         self.tv_short_file_names = None
-        self.tv_time_file = None
-        self.rgb_time_file = None
         self.checked_correpsonfing_photos = 0
         self.ui.rgb_tv_table.clearContents()
         self.ui.rgb_tv_table.setRowCount(0)
-        self.ui.rgb_time_file_edit.setText("")
-        self.ui.tv_time_file_edit.setText("")
         self.ui.cell_size_edit.setText("0.1")
-        self.can_start_flag = 0
         self.file_name_to_save_matrices = ControlDialog.DEFAULT_MATRICES_FILE
         self.ui.save_matrices_file_edit.setText("")
+        self.can_start_flag &= ~ControlDialog.CORRESPONDENCE
+
+    def clear_load_matrices_data(self):
+        self.file_name_to_load_matrices = None
+        self.can_start_flag &= ~ControlDialog.CORRESPONDENCE
+
+    def clear(self):
+        self.can_start_flag = 0
+        self.clear_calculate_matrices_data()
+        self.clear_load_matrices_data()
+
+        self.ui.ok_button.setEnabled(False)
+        self.tv_time_file = None
+        self.rgb_time_file = None
+        self.ui.rgb_time_file_edit.setText("")
+        self.ui.tv_time_file_edit.setText("")
+        self.want_calculate = True
         pass
 
-    def ok_pressed(self):
-        from os  import getcwd, chdir  
-
-        cur_dir = getcwd()
-        chdir('/home/plaz/Thermal_vision/qt')  
+    def perform_calibration(self):
         rgb_images = self.rgb_calibration_files
         tv_images = self.tv_calibration_files
         
@@ -143,11 +151,19 @@ class ControlDialog(QtGui.QDialog):
         msgBox.setStandardButtons(QtGui.QMessageBox.Ok)
         msgBox.show()
 
+    def ok_pressed(self):
+        from os  import getcwd, chdir  
+        cur_dir = getcwd()
+        chdir('/home/plaz/Thermal_vision/qt')  
+
+        if self.want_calculate:
+            self.perform_calibration()
+            tv_to_rgb_matrix, cameraMatrix_tv, distCoeffs_tv = read_matrices(self.file_name_to_save_matrices)
+        else:
+            tv_to_rgb_matrix, cameraMatrix_tv, distCoeffs_tv = read_matrices(self.file_name_to_load_matrices)
 
         rgb_time_file = self.ui.rgb_time_file_edit.text()
         tv_time_file = self.ui.tv_time_file_edit.text()
-
-        tv_to_rgb_matrix, cameraMatrix_tv, distCoeffs_tv = read_matrices(self.file_name_to_save_matrices)
 
         # TODO: calibration file name is hardcoded now
         calibration_file_name = '/home/plaz/tv_calibration.txt'
@@ -200,17 +216,23 @@ class ControlDialog(QtGui.QDialog):
 
 
     def use_matrices_from_file_clicked(self):
-        pass
+        file_name = self.select_text_file_clicked()
+        if file_name is None:
+            return
+        self.file_name_to_load_matrices = file_name
+        self.can_start_flag |= ControlDialog.CORRESPONDENCE
 
     def calculate_matrices_radio_clicked(self):
         self.ui.groupBox_2.setEnabled(True)
         self.ui.groupBox_3.setEnabled(False)
-        pass
+        self.clear_load_matrices_data()
+        self.want_calculate = True
 
     def select_matrices_radio_clicked(self):
         self.ui.groupBox_3.setEnabled(True)
         self.ui.groupBox_2.setEnabled(False)
-        pass
+        self.clear_calculate_matrices_data()
+        self.want_calculate = False
 
     def select_calibration_files_clicked(self):
         files = QtGui.QFileDialog.getOpenFileNames(
@@ -227,7 +249,7 @@ class ControlDialog(QtGui.QDialog):
 
             return None
 
-    def select_time_file_clicked(self):
+    def select_text_file_clicked(self):
         file_name = QtGui.QFileDialog.getOpenFileName(
                         self,
                         "Select file to open",
@@ -248,7 +270,7 @@ class ControlDialog(QtGui.QDialog):
         if files is not None:
             self.checked_correpsonfing_photos = 0
             self.rgb_calibration_files = files
-            self.readonly_checkboxes_checked()
+            self.ui.rgb_photos_ok_checkbox.setChecked(True)
             self.ui.rgb_tv_table.setRowCount(len(files))
             self.rgb_short_file_names = [s.split('/')[-1] for s in files]
 
@@ -279,12 +301,8 @@ class ControlDialog(QtGui.QDialog):
         if files is not None:
             self.tv_short_file_names = [s.split('/')[-1] for s in files]
             self.tv_calibration_files = files
-            self.readonly_checkboxes_checked()
+            self.ui.tv_photos_ok_checkbox.setChecked(True)
             self.update_tv_comboboxes()
-
-    def readonly_checkboxes_checked(self):
-        self.ui.rgb_photos_ok_checkbox.setChecked(self.rgb_calibration_files is not None)
-        self.ui.tv_photos_ok_checkbox.setChecked(self.tv_calibration_files is not None)
 
     def table_checkbox_clicked(self, checked):
         if checked and self.tv_calibration_files:
@@ -298,7 +316,7 @@ class ControlDialog(QtGui.QDialog):
         self.ui.ok_button.setEnabled(self.can_start_flag == ControlDialog.WHEN_CAN_START)
 
     def on_select_rgb_time_file_clicked(self):
-        self.rgb_time_file = self.select_time_file_clicked()
+        self.rgb_time_file = self.select_text_file_clicked()
         if self.rgb_time_file:
             self.can_start_flag |= ControlDialog.RGB_TIME_FILE
             self.ui.rgb_time_file_edit.setText(self.rgb_time_file)
@@ -308,7 +326,7 @@ class ControlDialog(QtGui.QDialog):
         self.ui.ok_button.setEnabled(self.can_start_flag == ControlDialog.WHEN_CAN_START)
 
     def on_select_tv_time_file_clicked(self):
-        self.tv_time_file = self.select_time_file_clicked()
+        self.tv_time_file = self.select_text_file_clicked()
         if self.tv_time_file:
             self.can_start_flag |= ControlDialog.TV_TIME_FILE
             self.ui.tv_time_file_edit.setText(self.tv_time_file)
