@@ -25,8 +25,8 @@ def write_tv_calibration_to_file(file_name, tv_time_file, camera_matrix, dist_co
     doc.getElementsByTagName("cy")[0].firstChild.nodeValue = camera_matrix[1,2] 
     doc.getElementsByTagName("k1")[0].firstChild.nodeValue = dist_coeffs[0]
     doc.getElementsByTagName("k2")[0].firstChild.nodeValue = dist_coeffs[1]
-    doc.getElementsByTagName("p1")[0].firstChild.nodeValue = dist_coeffs[3]
-    doc.getElementsByTagName("p2")[0].firstChild.nodeValue = dist_coeffs[4]
+    #doc.getElementsByTagName("p1")[0].firstChild.nodeValue = dist_coeffs[3]
+    #doc.getElementsByTagName("p2")[0].firstChild.nodeValue = dist_coeffs[4]
 
     doc.writexml(open(file_name, 'w'),
            indent="",

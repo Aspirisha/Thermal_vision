@@ -45,7 +45,11 @@ def build_tv_texture(tv_to_rgb_matrix, rgb_times_file, tv_times_file, calibratio
     # apply calibration to cameras sensor
     # we can take any camera!
 	tv_camera = doc.chunk.cameras[camera_name_to_index[tv_times[0][0]]]
-	tv_camera.sensor.calibration.load(calibration_file)
+	new_calibration = PhotoScan.Calibration()
+	new_calibration.load(calibration_file) # /home/plaz/calib.xml
+	print(tv_camera.sensor.calibration.fx)
+	tv_camera.sensor.calibration = new_calibration
+	print(tv_camera.sensor.calibration.fx)
 
 	for tv_photo, tv_time in tv_times:
 		print('tv_time = ' + str(tv_time))
