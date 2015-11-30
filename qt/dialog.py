@@ -9,7 +9,6 @@ import json
 import os
 import xml.dom.minidom as xdm
 
-sys.path.append("../")
 sys.path.append("/home/plaz/Thermal_vision/qt")
 sys.path.append("/home/plaz/Thermal_vision")
 
@@ -75,6 +74,9 @@ class ControlDialog(QtGui.QDialog):
         self.ui.cell_size_edit.setValidator(QtGui.QDoubleValidator(0, 100, 4, self))
 
         self.setFixedSize(self.size())
+        self.initial_width = self.width()
+        self.initial_height = self.height()
+        self.calculate_matrices_height = self.ui.groupBox_2.height()
         self.clear()
 
     def clear_calculate_matrices_data(self):
@@ -131,8 +133,6 @@ class ControlDialog(QtGui.QDialog):
         commandline_args = "--config " + config_abs_path
         commandline_args += (" --save-file " + self.file_name_to_save_matrices)
 
-        print(("../run_calibration.sh " + commandline_args).split(' '), end=None)
-       
         #with open('query.txt','w') as stdout:
         p = subprocess.call(("../run_calibration.sh " + commandline_args).split(' '))
 
