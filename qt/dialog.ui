@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>514</width>
-    <height>721</height>
+    <width>460</width>
+    <height>693</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -31,7 +31,7 @@
      <widget class="QWidget" name="horizontalLayoutWidget_2">
       <property name="geometry">
        <rect>
-        <x>60</x>
+        <x>50</x>
         <y>620</y>
         <width>341</width>
         <height>51</height>
@@ -82,13 +82,13 @@
        </size>
       </property>
       <property name="title">
-       <string>Calibration setup</string>
+       <string/>
       </property>
       <widget class="QRadioButton" name="radio_calculate_matrices">
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>30</y>
+         <y>10</y>
          <width>181</width>
          <height>22</height>
         </rect>
@@ -117,7 +117,7 @@
        <property name="geometry">
         <rect>
          <x>-20</x>
-         <y>50</y>
+         <y>40</y>
          <width>481</width>
          <height>401</height>
         </rect>
@@ -128,16 +128,19 @@
        <widget class="QWidget" name="verticalLayoutWidget">
         <property name="geometry">
          <rect>
-          <x>30</x>
+          <x>20</x>
           <y>10</y>
-          <width>453</width>
-          <height>371</height>
+          <width>431</width>
+          <height>391</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="calculate_matrices_opt_layout">
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout8" stretch="0,1,0,3">
-           <item>
+          <layout class="QHBoxLayout" name="horizontalLayout8" stretch=""/>
+         </item>
+         <item>
+          <layout class="QFormLayout" name="formLayout_6">
+           <item row="0" column="0">
             <widget class="QCheckBox" name="rgb_photos_ok_checkbox">
              <property name="enabled">
               <bool>false</bool>
@@ -162,7 +165,7 @@
              </property>
             </widget>
            </item>
-           <item>
+           <item row="0" column="1">
             <widget class="QPushButton" name="rgb_calibration_files_button">
              <property name="palette">
               <palette>
@@ -580,11 +583,11 @@
               </palette>
              </property>
              <property name="text">
-              <string>Select RGB calibration files</string>
+              <string>Select camera-1 chessboard photos</string>
              </property>
             </widget>
            </item>
-           <item>
+           <item row="1" column="0">
             <widget class="QCheckBox" name="tv_photos_ok_checkbox">
              <property name="enabled">
               <bool>false</bool>
@@ -609,10 +612,10 @@
              </property>
             </widget>
            </item>
-           <item>
+           <item row="1" column="1">
             <widget class="QPushButton" name="tv_calibration_files_button">
              <property name="text">
-              <string>Select TV calibration files</string>
+              <string>Select camera-2 chessboard photos</string>
              </property>
             </widget>
            </item>
@@ -620,10 +623,13 @@
          </item>
          <item>
           <layout class="QFormLayout" name="formLayout">
+           <property name="fieldGrowthPolicy">
+            <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+           </property>
            <item row="0" column="0">
             <widget class="QLabel" name="label_3">
              <property name="text">
-              <string>Cell size (meters)</string>
+              <string>Chessboard cell size (meters)</string>
              </property>
             </widget>
            </item>
@@ -639,7 +645,7 @@
          <item>
           <widget class="QLabel" name="label">
            <property name="text">
-            <string>Corresponding TV and RGB photos:</string>
+            <string>Corresponding chessboard photos:</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -671,12 +677,12 @@
            </attribute>
            <column>
             <property name="text">
-             <string>RGB photo</string>
+             <string>Camera-1 photo</string>
             </property>
            </column>
            <column>
             <property name="text">
-             <string>TV photo</string>
+             <string>Camera-2 photo</string>
             </property>
            </column>
           </widget>
@@ -737,7 +743,7 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>Select file</string>
+           <string>Select file containing matrices</string>
           </property>
          </widget>
         </item>
@@ -756,7 +762,7 @@
        <rect>
         <x>10</x>
         <y>540</y>
-        <width>451</width>
+        <width>421</width>
         <height>71</height>
        </rect>
       </property>
@@ -778,14 +784,14 @@
        <item row="0" column="0">
         <widget class="QPushButton" name="rgb_time_button">
          <property name="text">
-          <string>Select RGB time file</string>
+          <string>Select camera-1 time file</string>
          </property>
         </widget>
        </item>
        <item row="1" column="0">
         <widget class="QPushButton" name="tv_time_button">
          <property name="text">
-          <string>Select TV time file</string>
+          <string>Select camera-2 time file</string>
          </property>
         </widget>
        </item>
@@ -878,22 +884,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>rgb_calibration_files_button</sender>
-   <signal>clicked()</signal>
-   <receiver>Dialog</receiver>
-   <slot>select_rgb_calib_files_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>141</x>
-     <y>149</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>252</x>
-     <y>319</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>tv_calibration_files_button</sender>
    <signal>clicked()</signal>
    <receiver>Dialog</receiver>
@@ -954,6 +944,22 @@
     <hint type="destinationlabel">
      <x>244</x>
      <y>344</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rgb_calibration_files_button</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>select_rgb_calib_files_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>141</x>
+     <y>149</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>252</x>
+     <y>319</y>
     </hint>
    </hints>
   </connection>
