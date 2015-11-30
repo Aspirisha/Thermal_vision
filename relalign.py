@@ -32,9 +32,6 @@ def build_tv_texture(tv_to_rgb_matrix, rgb_times_file, tv_times_file, calibratio
 	tv_times.sort(key=lambda x: x[1])
 	rgb_times.sort(key=lambda x: x[1])
 
-	print(tv_times)
-	print(rgb_times)
-
 	rgb_idx = 0
 	for c in doc.chunk.cameras:
 		c.enabled = False
@@ -47,12 +44,9 @@ def build_tv_texture(tv_to_rgb_matrix, rgb_times_file, tv_times_file, calibratio
 	tv_camera = doc.chunk.cameras[camera_name_to_index[tv_times[0][0]]]
 	new_calibration = PhotoScan.Calibration()
 	new_calibration.load(calibration_file) # /home/plaz/calib.xml
-	print(tv_camera.sensor.calibration.fx)
 	tv_camera.sensor.calibration = new_calibration
-	print(tv_camera.sensor.calibration.fx)
 
 	for tv_photo, tv_time in tv_times:
-		print('tv_time = ' + str(tv_time))
 		if rgb_times[rgb_idx][1] > tv_time: # we need to get into interval
 			continue
 		next_idx = rgb_idx + 1
@@ -64,20 +58,13 @@ def build_tv_texture(tv_to_rgb_matrix, rgb_times_file, tv_times_file, calibratio
 			if next_idx >= len(rgb_times):
 				break
 		else:
-			print('here')
 			rgb_idx = next_idx - 1
 
 			name2, t2 = rgb_times[next_idx]
 			name1, t1 = rgb_times[rgb_idx]
-			print('rgb_idx: ' + str(rgb_idx))
-			print('next_idx: ' + str(next_idx))
-			print('name1: ' + name1)
-			print('name2: ' + name2)
 
 			idx1 = camera_name_to_index.get(name1)
 			idx2 = camera_name_to_index.get(name2)
-			print(idx1)
-			print(idx2)
 
 			if idx1 is None or idx2 is None:
 				continue
@@ -88,7 +75,6 @@ def build_tv_texture(tv_to_rgb_matrix, rgb_times_file, tv_times_file, calibratio
 			if not rgb_tr_matrix1 or not rgb_tr_matrix2:
 				continue
 
-			print('there')
 			tr_mat = get_transfom_matrix_for_tv(rgb_tr_matrix1, t1, rgb_tr_matrix2, t2, tv_to_rgb_matrix, tv_time)
 			tv_camera = doc.chunk.cameras[camera_name_to_index[tv_photo]]
 			tv_camera.transform = tr_mat

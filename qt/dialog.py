@@ -216,6 +216,7 @@ class ControlDialog(QtGui.QDialog):
         if file_name is None:
             return
         self.file_name_to_load_matrices = file_name
+        self.ui.select_matrices_file_edit.setText(file_name)
         self.can_start_flag |= ControlDialog.CORRESPONDENCE
 
     def calculate_matrices_radio_clicked(self):
@@ -347,7 +348,6 @@ if DEBUG:
     if __name__ == '__main__':
         main()
 else:
-    #import PhotoScan as ps #uncomment
     dlg = ControlDialog()
     ps.app.addMenuItem("Workflow/Relative Photo Alignment...", f) #uncomment
         

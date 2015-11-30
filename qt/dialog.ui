@@ -742,7 +742,11 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="select_calibration_file_edit"/>
+         <widget class="QLineEdit" name="select_matrices_file_edit">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
