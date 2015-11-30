@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -66,7 +66,7 @@
         <x>0</x>
         <y>0</y>
         <width>471</width>
-        <height>471</height>
+        <height>491</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -684,9 +684,9 @@
          <item>
           <layout class="QHBoxLayout" name="calibration_file_options_layout_3">
            <item>
-            <widget class="QCheckBox" name="save_matrices_checkbox">
+            <widget class="QPushButton" name="matrices_save_button">
              <property name="text">
-              <string>Save matrices to following file</string>
+              <string>File to save matrices...</string>
              </property>
             </widget>
            </item>
@@ -694,6 +694,9 @@
             <widget class="QLineEdit" name="save_matrices_file_edit">
              <property name="text">
               <string/>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
@@ -755,10 +758,18 @@
       </property>
       <layout class="QFormLayout" name="formLayout_2">
        <item row="0" column="1">
-        <widget class="QLineEdit" name="rgb_time_file_edit"/>
+        <widget class="QLineEdit" name="rgb_time_file_edit">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
        <item row="1" column="1">
-        <widget class="QLineEdit" name="tv_time_file_edit"/>
+        <widget class="QLineEdit" name="tv_time_file_edit">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
        <item row="0" column="0">
         <widget class="QPushButton" name="rgb_time_button">
@@ -815,22 +826,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>save_matrices_checkbox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>Dialog</receiver>
-   <slot>save_matrices_to_file_checked(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>158</x>
-     <y>453</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>252</x>
-     <y>319</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>select_calibration_file_button</sender>
    <signal>clicked()</signal>
    <receiver>Dialog</receiver>
@@ -882,7 +877,7 @@
    <sender>rgb_calibration_files_button</sender>
    <signal>clicked()</signal>
    <receiver>Dialog</receiver>
-   <slot>select_rgb_calib_files_cliked()</slot>
+   <slot>select_rgb_calib_files_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>141</x>
@@ -942,13 +937,29 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>matrices_save_button</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>save_matrices_to_file_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>94</x>
+     <y>464</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>244</x>
+     <y>344</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>ok_pressed()</slot>
   <slot>use_matrices_from_file_clicked()</slot>
   <slot>calculate_matrices_radio_clicked()</slot>
   <slot>select_tv_calib_files_clicked()</slot>
-  <slot>select_rgb_calib_files_cliked()</slot>
+  <slot>select_rgb_calib_files_clicked()</slot>
   <slot>save_matrices_to_file_checked(bool)</slot>
   <slot>select_matrices_file_clicked()</slot>
   <slot>select_matrices_radio_clicked()</slot>
@@ -956,5 +967,6 @@
   <slot>table_cell_clicked(int,int)</slot>
   <slot>on_select_rgb_time_file_clicked()</slot>
   <slot>on_select_tv_time_file_clicked()</slot>
+  <slot>save_matrices_to_file_clicked()</slot>
  </slots>
 </ui>

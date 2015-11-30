@@ -74,10 +74,10 @@ class ControlDialog(QtGui.QDialog):
         self.ui.groupBox_3.setEnabled(False)
         self.ui.cell_size_edit.setValidator(QtGui.QDoubleValidator(0, 100, 4, self))
 
+        self.setFixedSize(self.size())
         self.clear()
 
     def clear_calculate_matrices_data(self):
-        self.ui.save_matrices_checkbox.setChecked(False)
         self.ui.rgb_photos_ok_checkbox.setChecked(False)
         self.ui.tv_photos_ok_checkbox.setChecked(False)
         self.rgb_checkboxes = []
@@ -197,11 +197,8 @@ class ControlDialog(QtGui.QDialog):
         return abs_path
 
 
-    def save_matrices_to_file_checked(self, checked):
+    def save_matrices_to_file_clicked(self):
         options = QtGui.QFileDialog.Options()
-        
-        if not checked:
-            return
 
         file_name, filtr = QtGui.QFileDialog.getSaveFileName(self,
                 "QFileDialog.getSaveFileName()",
@@ -211,7 +208,6 @@ class ControlDialog(QtGui.QDialog):
             self.file_name_to_save_matrices = file_name
             self.ui.save_matrices_file_edit.setText(file_name)
         else:
-            self.ui.save_matrices_checkbox.setChecked(False)
             self.file_name_to_save_matrices = ControlDialog.DEFAULT_MATRICES_FILE
 
 
@@ -265,7 +261,7 @@ class ControlDialog(QtGui.QDialog):
             self.rgb_checkboxes[i].setEnabled(True)
             
 
-    def select_rgb_calib_files_cliked(self):
+    def select_rgb_calib_files_clicked(self):
         files = self.select_calibration_files_clicked()
         if files is not None:
             self.checked_correpsonfing_photos = 0
