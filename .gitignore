@@ -2,6 +2,9 @@
 *.jpeg
 *.png
 *.pyc
+*__pycache__/
 *~
 samples/
 qt/
+junk/
+.desktop

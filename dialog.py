@@ -1,17 +1,17 @@
 #/usr/bin/python
 
+import sys
+import os
+support_directory = os.path.dirname(os.path.realpath(__file__)) + os.sep + 'support'
+temp_directory = support_directory + os.sep + '.tmp'
+sys.path.append(support_directory)
+
 from PySide import QtCore, QtGui
 from dialog_ui import Ui_Dialog
 import PhotoScan as ps
 import subprocess
-import sys
 import json
-import os
 import xml.dom.minidom as xdm
-
-sys.path.append("/home/plaz/Thermal_vision/qt")
-sys.path.append("/home/plaz/Thermal_vision")
-
 from relalign import get_default_calibration_file, build_tv_texture
 
 def write_tv_calibration_to_file(file_name, tv_time_file, camera_matrix, dist_coeffs):
@@ -130,11 +130,12 @@ class ControlDialog(QtGui.QDialog):
 
         config_abs_path = self.write_config(rgb_images, tv_images, rgb_relative_file_names, tv_relative_file_names, cell_size)
 
-        commandline_args = "--config " + config_abs_path
-        commandline_args += (" --save-file " + self.file_name_to_save_matrices)
+        commandline_args = ["--config", config_abs_path]
+        commandline_args += ["--save-file", self.file_name_to_save_matrices]
 
+        print(commandline_args)
         #with open('query.txt','w') as stdout:
-        p = subprocess.call(("../run_calibration.sh " + commandline_args).split(' '))
+        p = subprocess.call([support_directory + os.sep + "run_calibration.sh"] + commandline_args)
 
         '''while True:
             print('here')
@@ -152,9 +153,8 @@ class ControlDialog(QtGui.QDialog):
         msgBox.show()
 
     def ok_pressed(self):
-        from os  import getcwd, chdir  
-        cur_dir = getcwd()
-        chdir('/home/plaz/Thermal_vision/qt')  
+        cur_dir = os.getcwd()
+        os.chdir(temp_directory)  
 
         if self.want_calculate:
             self.perform_calibration()
@@ -166,10 +166,10 @@ class ControlDialog(QtGui.QDialog):
         tv_time_file = self.ui.tv_time_file_edit.text()
 
         # TODO: calibration file name is hardcoded now
-        calibration_file_name = '/home/plaz/tv_calibration.txt'
+        calibration_file_name = temp_directory + os.sep + 'tv_calibration.txt'
         write_tv_calibration_to_file(calibration_file_name, tv_time_file, cameraMatrix_tv, distCoeffs_tv)
 
-        chdir(cur_dir)  
+        os.chdir(cur_dir)  
 
         build_tv_texture(tv_to_rgb_matrix, rgb_time_file, tv_time_file, calibration_file_name) #uncomment
         

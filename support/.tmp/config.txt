@@ -1,0 +1,8 @@
+1
+/home/plaz/Thermal_vision/samples/rgb/rgb1.jpg
+1
+/home/plaz/Thermal_vision/samples/rgb/rgb1.jpg
+0.1
+1
+/home/plaz/Thermal_vision/samples/rgb/rgb1.jpg
+/home/plaz/Thermal_vision/samples/rgb/rgb1.jpg
