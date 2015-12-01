@@ -1,6 +1,0 @@
---config /home/plaz/.local/share/data/Agisoft/PhotoScan Pro/scripts/support/.tmp/config.txt --save-file /home/plaz/photoscan-pro/calib_data.txt
---config /home/plaz/.local/share/data/Agisoft/PhotoScan Pro/scripts/support/.tmp/config.txt  --save-file /home/plaz/photoscan-pro/calib_data.txt
---config /home/plaz/.local/share/data/Agisoft/PhotoScan Pro/scripts/support/.tmp/config.txt  --save-file /home/plaz/photoscan-pro/calib_data.txt
---config /home/plaz/.local/share/data/Agisoft/PhotoScan Pro/scripts/support/.tmp/config.txt  --save-file /home/plaz/photoscan-pro/calib_data.txt
---config /home/plaz/.local/share/data/Agisoft/PhotoScan Pro/scripts/support/.tmp/config.txt --save-file /home/plaz/photoscan-pro/calib_data.txt
---config /home/plaz/.local/share/data/Agisoft/PhotoScan Pro/scripts/support/.tmp/config.txt --save-file /home/plaz/photoscan-pro/calib_data.txt

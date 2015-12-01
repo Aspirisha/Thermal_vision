@@ -2,6 +2,5 @@
 
 source ~/.virtualenvs/cv/bin/activate
 
-echo "$@" >> tmp.txt
-
-python ~/Thermal_vision/camera_relative_position.py "$@"
+# since we are now in .tmp, go up
+python ../camera_relative_position.py "$@"

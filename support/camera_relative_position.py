@@ -111,8 +111,6 @@ def main():
 
     json.dump(cameraMatrix_rgb.tolist(), f)
     f.write('\n')
-    print('TYPE: ')
-    print(type(distCoeffs_rgb))
     json.dump(distCoeffs_rgb.tolist(), f)
     f.write('\n')
     json.dump(cameraMatrix_tv.tolist(), f)
