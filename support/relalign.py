@@ -3,15 +3,21 @@ import copy
 import math
 
 def get_default_calibration_file(file_name, tv_times_file):
-	f = open(tv_times_file)
-	name = f.readline().split(' ')[0]
-	doc = PhotoScan.app.document
-
 	sensor = None
-	for c in doc.chunk.cameras:
-		if c.label == name:
-			sensor = c.sensor
-			break
+	with open(tv_times_file) as f:
+		for line in f:
+			name = line.split(' ')[0]
+			print(name)
+			doc = PhotoScan.app.document
+
+			
+			for c in doc.chunk.cameras:
+				if c.label == name:
+					sensor = c.sensor
+					break
+			if sensor is not None:
+				break
+
 	sensor.calibration.save(file_name)
 
 # returns dictionary: capture_name -> time

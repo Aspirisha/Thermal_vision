@@ -11,7 +11,8 @@ def get_image_points(fname, inner_width, inner_height):
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 
     # Find the chess board corners
-    ret, corners = cv2.findChessboardCorners(gray, (inner_width, inner_height),None)
+    ret, corners = cv2.findChessboardCorners(gray, (inner_width, inner_height), 
+        cv2.CALIB_CB_FAST_CHECK + cv2.CALIB_CB_ADAPTIVE_THRESH + cv2.CALIB_CB_NORMALIZE_IMAGE)
 
     # If found, add object points, image points (after refining them)
     if ret == True:
@@ -59,5 +60,7 @@ def calibrate_rgb_and_tv(objpoints, img_points_rgb, img_points_tv, image_size, r
     crit = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
     # matrix will be FROM tv TO rgb
-    return cv2.stereoCalibrate(objectPoints=objpoints, imagePoints1=img_points_rgb, imagePoints2=img_points_tv, imageSize=image_size, \
+    object_points = [objpoints for i in range(len(img_points_rgb))]
+    print(object_points)
+    return cv2.stereoCalibrate(objectPoints=object_points, imagePoints1=img_points_rgb, imagePoints2=img_points_tv, imageSize=image_size, \
         cameraMatrix1=rgb_camera_matrix, distCoeffs1=rgb_dist_coeffs, cameraMatrix2=tv_camera_matrix, distCoeffs2=tv_dist_coeffs)

@@ -18,13 +18,17 @@ def write_tv_calibration_to_file(file_name, tv_time_file, camera_matrix, dist_co
     get_default_calibration_file(file_name, tv_time_file)
     doc = xdm.parse(file_name)
 
+    print('dist_coeffs: ' + str(dist_coeffs))
+    print('doc.getElementsByTagName("k1") = ' + str(doc.getElementsByTagName("k1")))
     doc.getElementsByTagName("fx")[0].firstChild.nodeValue = camera_matrix[0,0]
     doc.getElementsByTagName("fy")[0].firstChild.nodeValue = camera_matrix[1,1]
     doc.getElementsByTagName("cx")[0].firstChild.nodeValue = camera_matrix[0,2]
     doc.getElementsByTagName("cy")[0].firstChild.nodeValue = camera_matrix[1,2] 
-    doc.getElementsByTagName("k1")[0].firstChild.nodeValue = dist_coeffs[0]
-    doc.getElementsByTagName("k2")[0].firstChild.nodeValue = dist_coeffs[1]
-    doc.getElementsByTagName("k3")[0].firstChild.nodeValue = dist_coeffs[4]
+
+    if len(doc.getElementsByTagName("k1")) > 0: # TODO fix
+        doc.getElementsByTagName("k1")[0].firstChild.nodeValue = dist_coeffs[0]
+        doc.getElementsByTagName("k2")[0].firstChild.nodeValue = dist_coeffs[1]
+        doc.getElementsByTagName("k3")[0].firstChild.nodeValue = dist_coeffs[4]
     #doc.getElementsByTagName("p1")[0].firstChild.nodeValue = dist_coeffs[2]
     #doc.getElementsByTagName("p2")[0].firstChild.nodeValue = dist_coeffs[3]
 
@@ -165,7 +169,6 @@ class ControlDialog(QtGui.QDialog):
         rgb_time_file = self.ui.rgb_time_file_edit.text()
         tv_time_file = self.ui.tv_time_file_edit.text()
 
-        # TODO: calibration file name is hardcoded now
         calibration_file_name = temp_directory + os.sep + 'tv_calibration.txt'
         write_tv_calibration_to_file(calibration_file_name, tv_time_file, cameraMatrix_tv, distCoeffs_tv)
 
