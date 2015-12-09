@@ -99,7 +99,7 @@ def get_chunk_scale(chunk):
 		scale = (chunk.transform.matrix.inv().mulp(chunk.crs.unproject(e1)) - chunk.transform.matrix.inv().mulp(chunk.crs.unproject(e0))).norm()
 		return scale
 	except:
-		return 1
+		return 0.1
 
 def scale_transform_matrix(m, chunk_scale):
 	new_mat = m.copy()

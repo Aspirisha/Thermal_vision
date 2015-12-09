@@ -56,11 +56,19 @@ def get_tv_to_rgb_matrix(rgb_calibration_file_names, tv_calibration_file_names, 
         img_points_tv = []
         img_points_rgb = []
         for fname_rgb, fname_tv in zip(rgb_relative_file_names, tv_relative_file_names):
-           img_points_rgb.append(calib.get_image_points(fname_rgb, inner_width, inner_height))
-           img_points_tv.append(calib.get_image_points(fname_tv, inner_width, inner_height))
+            rgb_points = calib.get_image_points(fname_rgb, inner_width, inner_height)
+            tv_points = calib.get_image_points(fname_tv, inner_width, inner_height)
+
+            if (rgb_points is not None and tv_points is not None):
+                img_points_rgb.append(rgb_points)
+                img_points_tv.append(tv_points)
     else:
         print("Error: ")
         pass
+
+    if len(img_points_rgb) == 0:
+        print("Considered photos can't be used to determine relative position")
+        return None
 
     #return objpoints, img_points_rgb, img_points_tv, image_size, mtx_rgb, dist_rgb, mtx_tv, dist_tv
 

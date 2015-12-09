@@ -20,15 +20,22 @@ def write_tv_calibration_to_file(file_name, tv_time_file, camera_matrix, dist_co
 
     print('dist_coeffs: ' + str(dist_coeffs))
     print('doc.getElementsByTagName("k1") = ' + str(doc.getElementsByTagName("k1")))
-    doc.getElementsByTagName("fx")[0].firstChild.nodeValue = camera_matrix[0,0]
-    doc.getElementsByTagName("fy")[0].firstChild.nodeValue = camera_matrix[1,1]
-    doc.getElementsByTagName("cx")[0].firstChild.nodeValue = camera_matrix[0,2]
-    doc.getElementsByTagName("cy")[0].firstChild.nodeValue = camera_matrix[1,2] 
+    doc.getElementsByTagName("fx")[0].firstChild.nodeValue = str(camera_matrix[0,0])
+    doc.getElementsByTagName("fy")[0].firstChild.nodeValue = str(camera_matrix[1,1])
+    doc.getElementsByTagName("cx")[0].firstChild.nodeValue = str(camera_matrix[0,2])
+    doc.getElementsByTagName("cy")[0].firstChild.nodeValue = str(camera_matrix[1,2]) 
 
+    indexes = [0,1,4]
     if len(doc.getElementsByTagName("k1")) > 0: # TODO fix
-        doc.getElementsByTagName("k1")[0].firstChild.nodeValue = dist_coeffs[0]
-        doc.getElementsByTagName("k2")[0].firstChild.nodeValue = dist_coeffs[1]
-        doc.getElementsByTagName("k3")[0].firstChild.nodeValue = dist_coeffs[4]
+        for i, j in enumerate(indexes):
+            doc.getElementsByTagName("k" + str(i + 1))[0].firstChild.nodeValue = str(dist_coeffs[j])
+    else:
+        root_element = doc.getElementsByTagName("calibration")[0]
+        for i, j in enumerate(indexes):
+            k = doc.createElement("k" + str(i + 1))
+            k.appendChild(doc.createTextNode(str(dist_coeffs[j])))
+            root_element.appendChild(k)
+
     #doc.getElementsByTagName("p1")[0].firstChild.nodeValue = dist_coeffs[2]
     #doc.getElementsByTagName("p2")[0].firstChild.nodeValue = dist_coeffs[3]
 
@@ -44,6 +51,11 @@ def read_matrices(file_name):
         lst = json.loads(s)
         data.append(lst)
 
+    print('camera_matrix_rgb:')
+    print(ps.Matrix(data[0]))
+    print('dist_coefs_rgb:')
+    print([float(x) for x in data[1]])
+    
     tv_to_rgb_matrix = ps.Matrix(data[4])
     cameraMatrix_tv = ps.Matrix(data[2])
     distCoeffs_tv = [float(x) for x in data[3]]
