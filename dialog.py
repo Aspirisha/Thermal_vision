@@ -12,37 +12,28 @@ import PhotoScan as ps
 import subprocess
 import json
 import xml.dom.minidom as xdm
-from relalign import get_default_calibration_file, build_tv_texture
+from relalign import perform_relative_alignment
 
-def write_tv_calibration_to_file(file_name, tv_time_file, camera_matrix, dist_coeffs):
-    get_default_calibration_file(file_name, tv_time_file)
-    doc = xdm.parse(file_name)
 
-    print('dist_coeffs: ' + str(dist_coeffs))
-    print('doc.getElementsByTagName("k1") = ' + str(doc.getElementsByTagName("k1")))
-    doc.getElementsByTagName("fx")[0].firstChild.nodeValue = str(camera_matrix[0,0])
-    doc.getElementsByTagName("fy")[0].firstChild.nodeValue = str(camera_matrix[1,1])
-    doc.getElementsByTagName("cx")[0].firstChild.nodeValue = str(camera_matrix[0,2])
-    doc.getElementsByTagName("cy")[0].firstChild.nodeValue = str(camera_matrix[1,2]) 
+def write_tv_calibration_to_file(file_name, camera_matrix, dist_coeffs, tv_width, tv_height):
+    doc = xdm.Document()
+    base = doc.createElement('calibration')
+    doc.appendChild(base)
 
-    indexes = [0,1,4]
-    if len(doc.getElementsByTagName("k1")) > 0: # TODO fix
-        for i, j in enumerate(indexes):
-            doc.getElementsByTagName("k" + str(i + 1))[0].firstChild.nodeValue = str(dist_coeffs[j])
-    else:
-        root_element = doc.getElementsByTagName("calibration")[0]
-        for i, j in enumerate(indexes):
-            k = doc.createElement("k" + str(i + 1))
-            k.appendChild(doc.createTextNode(str(dist_coeffs[j])))
-            root_element.appendChild(k)
+    entry_names = ('projection', 'width', 'height', 'fx', 'fy', 'cx', 'cy', 'k1', 'k2', 'k3', 'p1', 'p2')
+    entry_values = ('frame', tv_width, tv_height, camera_matrix[0,0],
+                    camera_matrix[1,1], camera_matrix[0,2], camera_matrix[1,2],
+                    dist_coeffs[0], dist_coeffs[1], dist_coeffs[2], 0, 0)
 
-    #doc.getElementsByTagName("p1")[0].firstChild.nodeValue = dist_coeffs[2]
-    #doc.getElementsByTagName("p2")[0].firstChild.nodeValue = dist_coeffs[3]
+    for name, value in zip(entry_names, entry_values):
+        entry = doc.createElement(name)
+        base.appendChild(entry)
+        entry.appendChild(doc.createTextNode(str(value)))
 
     doc.writexml(open(file_name, 'w'),
-           indent="",
-           addindent="  ",
+           indent="  ",
            encoding="utf-8")
+
 
 def read_matrices(file_name):
     f = open(file_name, "r")
@@ -55,12 +46,13 @@ def read_matrices(file_name):
     print(ps.Matrix(data[0]))
     print('dist_coefs_rgb:')
     print([float(x) for x in data[1]])
-    
+
     tv_to_rgb_matrix = ps.Matrix(data[4])
     cameraMatrix_tv = ps.Matrix(data[2])
     distCoeffs_tv = [float(x) for x in data[3]]
+    image_size = list(data[5])
 
-    return tv_to_rgb_matrix, cameraMatrix_tv, distCoeffs_tv 
+    return tv_to_rgb_matrix, cameraMatrix_tv, distCoeffs_tv, image_size[0], image_size[1]
 
 def show_all_widgets_in_layout(layout, show):
     items = (layout.itemAt(i) for i in range(layout.count())) 
@@ -73,12 +65,12 @@ def show_all_widgets_in_layout(layout, show):
 
 class ControlDialog(QtGui.QDialog):
     MIN_CALIBRATION_FILES = 1
-    RGB_TIME_FILE = 2
-    TV_TIME_FILE = 4
-    CORRESPONDENCE = 1
-    WHEN_CAN_START = CORRESPONDENCE | RGB_TIME_FILE | TV_TIME_FILE
+    PHOTO_CORRESPONDENCE = 2
+    CALIBRATION_CORRESPONDENCE = 1
+    WHEN_CAN_START = CALIBRATION_CORRESPONDENCE | PHOTO_CORRESPONDENCE
+
     DEFAULT_LOCATION = "/home/plaz/Thermal_vision/samples/rgb"
-    DEFAULT_MATRICES_FILE = os.path.abspath('calib_data.txt')
+    DEFAULT_MATRICES_FILE = temp_directory + os.sep + 'calib_data.txt'
 
     def __init__(self, parent=None):
         super(ControlDialog, self).__init__(parent)
@@ -100,7 +92,6 @@ class ControlDialog(QtGui.QDialog):
         self.ui.tv_photos_ok_checkbox.setChecked(False)
         self.rgb_checkboxes = []
         self.tv_comboboxes = []
-        self.file_name_to_save_matrices = None
         self.tv_calibration_files = None
         self.rgb_calibration_files = None
         self.rgb_short_file_names = None
@@ -111,22 +102,23 @@ class ControlDialog(QtGui.QDialog):
         self.ui.cell_size_edit.setText("0.1")
         self.file_name_to_save_matrices = ControlDialog.DEFAULT_MATRICES_FILE
         self.ui.save_matrices_file_edit.setText("")
-        self.can_start_flag &= ~ControlDialog.CORRESPONDENCE
+        self.can_start_flag &= ~ControlDialog.CALIBRATION_CORRESPONDENCE
 
     def clear_load_matrices_data(self):
         self.file_name_to_load_matrices = None
-        self.can_start_flag &= ~ControlDialog.CORRESPONDENCE
+        self.ui.select_matrices_file_edit.setText("")
+        self.can_start_flag &= ~ControlDialog.CALIBRATION_CORRESPONDENCE
 
     def clear(self):
         self.can_start_flag = 0
         self.clear_calculate_matrices_data()
         self.clear_load_matrices_data()
 
+        self.can_start_flag = 0
+        self.ui.matching_file_edit.setText("")
         self.ui.ok_button.setEnabled(False)
-        self.tv_time_file = None
-        self.rgb_time_file = None
-        self.ui.rgb_time_file_edit.setText("")
-        self.ui.tv_time_file_edit.setText("")
+        self.photo_matching_file = None
+        self.ui.matching_file_edit.setText("")
         self.want_calculate = True
         pass
 
@@ -174,19 +166,17 @@ class ControlDialog(QtGui.QDialog):
 
         if self.want_calculate:
             self.perform_calibration()
-            tv_to_rgb_matrix, cameraMatrix_tv, distCoeffs_tv = read_matrices(self.file_name_to_save_matrices)
-        else:
-            tv_to_rgb_matrix, cameraMatrix_tv, distCoeffs_tv = read_matrices(self.file_name_to_load_matrices)
+            self.file_name_to_load_matrices = self.file_name_to_save_matrices
 
-        rgb_time_file = self.ui.rgb_time_file_edit.text()
-        tv_time_file = self.ui.tv_time_file_edit.text()
+        tv_to_rgb_matrix, cameraMatrix_tv, distCoeffs_tv, tv_image_width, \
+            tv_image_height = read_matrices(self.file_name_to_save_matrices)
 
         calibration_file_name = temp_directory + os.sep + 'tv_calibration.txt'
-        write_tv_calibration_to_file(calibration_file_name, tv_time_file, cameraMatrix_tv, distCoeffs_tv)
+        write_tv_calibration_to_file(calibration_file_name, cameraMatrix_tv, distCoeffs_tv, tv_image_width, tv_image_height)
 
         os.chdir(cur_dir)  
 
-        build_tv_texture(tv_to_rgb_matrix, rgb_time_file, tv_time_file, calibration_file_name) #uncomment
+        perform_relative_alignment(tv_to_rgb_matrix, self.photo_matching_file, calibration_file_name) #uncomment
         
         self.clear()
         self.hide()
@@ -232,7 +222,7 @@ class ControlDialog(QtGui.QDialog):
             return
         self.file_name_to_load_matrices = file_name
         self.ui.select_matrices_file_edit.setText(file_name)
-        self.can_start_flag |= ControlDialog.CORRESPONDENCE
+        self.can_start_flag |= ControlDialog.CALIBRATION_CORRESPONDENCE
 
     def calculate_matrices_radio_clicked(self):
         self.ui.groupBox_2.setEnabled(True)
@@ -316,36 +306,45 @@ class ControlDialog(QtGui.QDialog):
             self.ui.tv_photos_ok_checkbox.setChecked(True)
             self.update_tv_comboboxes()
 
+        self.ui.ok_button.setEnabled(self.can_start_flag == ControlDialog.WHEN_CAN_START)
+
     def table_checkbox_clicked(self, checked):
         if checked and self.tv_calibration_files:
-            self.can_start_flag |= ControlDialog.CORRESPONDENCE
+            self.can_start_flag |= ControlDialog.CALIBRATION_CORRESPONDENCE
             self.checked_correpsonfing_photos += 1
         else:
             self.checked_correpsonfing_photos -= 1
             if self.checked_correpsonfing_photos == 0:
-                self.can_start_flag &= (~ControlDialog.CORRESPONDENCE)
+                self.can_start_flag &= (~ControlDialog.CALIBRATION_CORRESPONDENCE)
         
         self.ui.ok_button.setEnabled(self.can_start_flag == ControlDialog.WHEN_CAN_START)
 
-    def on_select_rgb_time_file_clicked(self):
-        self.rgb_time_file = self.select_text_file_clicked()
-        if self.rgb_time_file:
-            self.can_start_flag |= ControlDialog.RGB_TIME_FILE
-            self.ui.rgb_time_file_edit.setText(self.rgb_time_file)
+    def on_select_matching_file_button_clicked(self):
+        self.photo_matching_file = self.select_text_file_clicked()
+        if self.photo_matching_file:
+            self.can_start_flag |= ControlDialog.PHOTO_CORRESPONDENCE
+            self.ui.matching_file_edit.setText(self.photo_matching_file)
         else:
-            self.can_start_flag &= (~ControlDialog.RGB_TIME_FILE)
-            self.ui.rgb_time_file_edit.setText("")
+            self.can_start_flag &= (~ControlDialog.PHOTO_CORRESPONDENCE)
+            self.ui.matching_file_edit.setText("")
         self.ui.ok_button.setEnabled(self.can_start_flag == ControlDialog.WHEN_CAN_START)
 
-    def on_select_tv_time_file_clicked(self):
-        self.tv_time_file = self.select_text_file_clicked()
-        if self.tv_time_file:
-            self.can_start_flag |= ControlDialog.TV_TIME_FILE
-            self.ui.tv_time_file_edit.setText(self.tv_time_file)
+    def match_photos_by_file_radio_clicked(self):
+        if self.photo_matching_file:
+            self.can_start_flag |= ControlDialog.PHOTO_CORRESPONDENCE
         else:
-            self.can_start_flag &= (~ControlDialog.TV_TIME_FILE)
-            self.ui.tv_time_file_edit.setText("")
+            self.can_start_flag &= (~ControlDialog.PHOTO_CORRESPONDENCE)
+        self.ui.matching_file_edit.setEnabled(True)
+        self.ui.matching_file_button.setEnabled(True)
         self.ui.ok_button.setEnabled(self.can_start_flag == ControlDialog.WHEN_CAN_START)
+
+    def match_photos_by_location_radio_clicked(self):
+        self.can_start_flag |= ControlDialog.PHOTO_CORRESPONDENCE
+        self.ui.matching_file_edit.setEnabled(False)
+        self.ui.matching_file_button.setEnabled(False)
+
+        self.ui.ok_button.setEnabled(self.can_start_flag == ControlDialog.WHEN_CAN_START)
+
 
 def f():
     dlg.show()
@@ -365,4 +364,3 @@ if DEBUG:
 else:
     dlg = ControlDialog()
     ps.app.addMenuItem("Workflow/Relative Photo Alignment...", f) #uncomment
-        

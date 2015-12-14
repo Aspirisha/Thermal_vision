@@ -104,7 +104,7 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>450</y>
+         <y>40</y>
          <width>261</width>
          <height>22</height>
         </rect>
@@ -117,7 +117,7 @@
        <property name="geometry">
         <rect>
          <x>-20</x>
-         <y>40</y>
+         <y>60</y>
          <width>481</width>
          <height>401</height>
         </rect>
@@ -136,7 +136,7 @@
         </property>
         <layout class="QVBoxLayout" name="calculate_matrices_opt_layout">
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout8" stretch=""/>
+          <layout class="QHBoxLayout" name="horizontalLayout8"/>
          </item>
          <item>
           <layout class="QFormLayout" name="formLayout_6">
@@ -718,7 +718,7 @@
         <x>20</x>
         <y>480</y>
         <width>461</width>
-        <height>61</height>
+        <height>51</height>
        </rect>
       </property>
       <property name="title">
@@ -736,6 +736,9 @@
        <layout class="QHBoxLayout" name="calibration_file_options_layout">
         <item>
          <widget class="QPushButton" name="select_calibration_file_button">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
           <property name="sizePolicy">
            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -749,6 +752,9 @@
         </item>
         <item>
          <widget class="QLineEdit" name="select_matrices_file_edit">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
           <property name="readOnly">
            <bool>true</bool>
           </property>
@@ -761,41 +767,78 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>540</y>
+        <y>580</y>
         <width>421</width>
-        <height>71</height>
+        <height>31</height>
        </rect>
       </property>
       <layout class="QFormLayout" name="formLayout_3">
-       <item row="0" column="1">
-        <widget class="QLineEdit" name="rgb_time_file_edit">
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QLineEdit" name="tv_time_file_edit">
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
+       <property name="fieldGrowthPolicy">
+        <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+       </property>
        <item row="0" column="0">
-        <widget class="QPushButton" name="rgb_time_button">
+        <widget class="QPushButton" name="matching_file_button">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="text">
-          <string>Select camera-1 time file</string>
+          <string>Select file containing matching</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QPushButton" name="tv_time_button">
-         <property name="text">
-          <string>Select camera-2 time file</string>
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="matching_file_edit">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
       </layout>
+     </widget>
+     <widget class="QGroupBox" name="groupBox_4">
+      <property name="geometry">
+       <rect>
+        <x>40</x>
+        <y>530</y>
+        <width>331</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string/>
+      </property>
+      <widget class="QRadioButton" name="match_by_location_radio">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>191</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Match photos by location</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="match_by_file_radio">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>20</y>
+         <width>181</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Match photos using file</string>
+       </property>
+      </widget>
      </widget>
     </widget>
    </item>
@@ -900,38 +943,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>rgb_time_button</sender>
-   <signal>clicked()</signal>
-   <receiver>Dialog</receiver>
-   <slot>on_select_rgb_time_file_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>96</x>
-     <y>563</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>244</x>
-     <y>344</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>tv_time_button</sender>
-   <signal>clicked()</signal>
-   <receiver>Dialog</receiver>
-   <slot>on_select_tv_time_file_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>91</x>
-     <y>596</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>244</x>
-     <y>344</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>matrices_save_button</sender>
    <signal>clicked()</signal>
    <receiver>Dialog</receiver>
@@ -963,6 +974,54 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>match_by_file_radio</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>match_photos_by_file_radio_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>139</x>
+     <y>569</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>229</x>
+     <y>346</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>match_by_location_radio</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>match_photos_by_location_radio_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>144</x>
+     <y>549</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>229</x>
+     <y>346</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>matching_file_button</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>on_select_matching_file_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>119</x>
+     <y>603</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>229</x>
+     <y>346</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>ok_pressed()</slot>
@@ -973,10 +1032,10 @@
   <slot>save_matrices_to_file_checked(bool)</slot>
   <slot>select_matrices_file_clicked()</slot>
   <slot>select_matrices_radio_clicked()</slot>
-  <slot>readonly_checkboxes_checked()</slot>
   <slot>table_cell_clicked(int,int)</slot>
-  <slot>on_select_rgb_time_file_clicked()</slot>
-  <slot>on_select_tv_time_file_clicked()</slot>
   <slot>save_matrices_to_file_clicked()</slot>
+  <slot>match_photos_by_location_radio_clicked()</slot>
+  <slot>match_photos_by_file_radio_clicked()</slot>
+  <slot>on_select_matching_file_button_clicked()</slot>
  </slots>
 </ui>

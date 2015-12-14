@@ -61,6 +61,5 @@ def calibrate_rgb_and_tv(objpoints, img_points_rgb, img_points_tv, image_size, r
 
     # matrix will be FROM tv TO rgb
     object_points = [objpoints for i in range(len(img_points_rgb))]
-    print(object_points)
     return cv2.stereoCalibrate(objectPoints=object_points, imagePoints2=img_points_rgb, imagePoints1=img_points_tv, imageSize=image_size, \
         cameraMatrix2=rgb_camera_matrix, distCoeffs2=rgb_dist_coeffs, cameraMatrix1=tv_camera_matrix, distCoeffs1=tv_dist_coeffs)

@@ -5,10 +5,8 @@ prefixes[1]="tv"
 paths[1]="1"
 paths[2]="2"
 
-time_rgb="$folder/rgb/time_rgb.txt"
-time_tv="$folder/tv/time_tv.txt"
-rm -f $time_tv
-rm -f $time_rgb
+correspondence_file="$folder/correspondence.txt"
+rm -f $correspondence_file
 
 j=1
 for pref in ${prefixes[@]}; do
@@ -19,10 +17,7 @@ for pref in ${prefixes[@]}; do
 	for f in "$folder/${paths[$j]}"/DSC*.JPG; do
 	    cp "$f" "$out/$pref$i.jpg"
 	    if [ "$pref" == "rgb" ]; then  
-		    echo "rgb$i.jpg $tm" >> $time_rgb
-		    tm=`echo "scale=5; $tm+0.001" | bc`
-		    echo "tv$i.jpg $tm" >> $time_tv
-		    tm=`echo "scale=5; $tm+$RANDOM/32767" | bc`
+		    echo "rgb$i.jpg tv$i.jpg" >> $correspondence_file
 	    fi
 	   	i=$(($i+1));
 	done

@@ -115,6 +115,8 @@ def main():
     f.close()
 
     A, cameraMatrix_rgb, distCoeffs_rgb, cameraMatrix_tv, distCoeffs_tv = get_tv_to_rgb_matrix(rgb_images, tv_images, rgb_relative, tv_relative, cell_size)
+    tv_image_width, tv_image_height = calib.get_image_size(tv_images[0])
+
     f = open(args.save_file, "w")
 
     json.dump(cameraMatrix_rgb.tolist(), f)
@@ -126,7 +128,8 @@ def main():
     json.dump(distCoeffs_tv.tolist(), f)
     f.write('\n')
     json.dump(A.tolist(), f)
-
+    f.write('\n')
+    json.dump([tv_image_width, tv_image_height], f)
     f.close()
 
 if __name__ == '__main__':
