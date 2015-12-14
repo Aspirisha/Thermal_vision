@@ -45,7 +45,8 @@ def perform_relative_alignment(tv_to_rgb_matrix, photo_matching_file, calibratio
 
     rgb_to_tv_matching = get_photo_matching_by_location() if photo_matching_file is None \
         else get_photo_matching_by_file(photo_matching_file)
-    
+
+    print(rgb_to_tv_matching)
     # apply calibration to cameras sensor
     # we can take any camera!
     tv_camera = None
@@ -89,7 +90,7 @@ def get_chunk_scale(chunk):
         scale = (chunk.transform.matrix.inv().mulp(chunk.crs.unproject(e1)) - chunk.transform.matrix.inv().mulp(chunk.crs.unproject(e0))).norm()
         return scale
     except:
-        return 0.1
+        return 0.4
 
 def scale_transform_matrix(m, chunk_scale):
     new_mat = m.copy()

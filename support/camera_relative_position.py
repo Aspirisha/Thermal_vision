@@ -72,7 +72,9 @@ def get_tv_to_rgb_matrix(rgb_calibration_file_names, tv_calibration_file_names, 
 
     #return objpoints, img_points_rgb, img_points_tv, image_size, mtx_rgb, dist_rgb, mtx_tv, dist_tv
 
-    retval, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, R, T, E, F = calib.calibrate_rgb_and_tv(objpoints, img_points_rgb, img_points_tv, image_size, mtx_rgb, dist_rgb, mtx_tv, dist_tv)
+    retval, cameraMatrix1, distCoeffs1, cameraMatrix2, \
+    distCoeffs2, R, T, E, F = calib.calibrate_rgb_and_tv(objpoints, img_points_rgb,
+                                                         img_points_tv, image_size, mtx_rgb, dist_rgb, mtx_tv, dist_tv)
 
     T *= chessboard_cell_width_meters # now translations is in meters
 
@@ -114,7 +116,8 @@ def main():
     rgb_relative, tv_relative = read_pairs(f)
     f.close()
 
-    A, cameraMatrix_rgb, distCoeffs_rgb, cameraMatrix_tv, distCoeffs_tv = get_tv_to_rgb_matrix(rgb_images, tv_images, rgb_relative, tv_relative, cell_size)
+    A, cameraMatrix_tv, distCoeffs_tv, cameraMatrix_rgb, distCoeffs_rgb = \
+        get_tv_to_rgb_matrix(rgb_images, tv_images, rgb_relative, tv_relative, cell_size)
     tv_image_width, tv_image_height = calib.get_image_size(tv_images[0])
 
     f = open(args.save_file, "w")
