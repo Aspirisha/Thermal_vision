@@ -8,11 +8,12 @@ DISTANCE_EPS = 1e-5
 def get_photo_matching_by_file(matching_file):
     matching = {}
     with open(matching_file) as f:
+        dist_tuple = next(f).split(' ')
         for s in f:
             rgb_photo, tv_photo = s.split(' ')
             matching[rgb_photo] = tv_photo.strip()
 
-    return matching
+    return matching, dist_tuple
 
 
 def get_photo_matching_by_location():
@@ -40,11 +41,18 @@ def perform_relative_alignment(tv_to_rgb_matrix, photo_matching_file, calibratio
     for c in doc.chunk.cameras:
         c.enabled = False
 
-    chunk_scale = get_chunk_scale(doc.chunk)
-    tv_to_rgb_matrix = scale_transform_matrix(tv_to_rgb_matrix, chunk_scale)
+    if photo_matching_file is None:
+        rgb_to_tv_matching = get_photo_matching_by_location()
+        chunk_scale = get_chunk_scale(doc.chunk)
+    else:
+        rgb_to_tv_matching, dist_tuple = get_photo_matching_by_file(photo_matching_file)
+        camera1 = doc.chunk.cameras[camera_name_to_index[dist_tuple[0]]]
+        camera2 = doc.chunk.cameras[camera_name_to_index[dist_tuple[1]]]
+        dist = float(dist_tuple[2])
+        chunk_scale = get_chunk_scale_no_crs(camera1, camera2, dist)
+        print(chunk_scale)
 
-    rgb_to_tv_matching = get_photo_matching_by_location() if photo_matching_file is None \
-        else get_photo_matching_by_file(photo_matching_file)
+    tv_to_rgb_matrix = scale_transform_matrix(tv_to_rgb_matrix, chunk_scale)
 
     print(rgb_to_tv_matching)
     # apply calibration to cameras sensor
@@ -91,6 +99,11 @@ def get_chunk_scale(chunk):
         return scale
     except:
         return 0.4
+
+
+def get_chunk_scale_no_crs(camera1, camera2, real_world_distance_in_meters):
+    return (camera2.center - camera1.center).norm() / real_world_distance_in_meters
+
 
 def scale_transform_matrix(m, chunk_scale):
     new_mat = m.copy()
