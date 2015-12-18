@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>460</width>
+    <width>453</width>
     <height>693</height>
    </rect>
   </property>
@@ -118,7 +118,7 @@
         <rect>
          <x>-20</x>
          <y>60</y>
-         <width>481</width>
+         <width>451</width>
          <height>401</height>
         </rect>
        </property>
@@ -140,31 +140,12 @@
          </item>
          <item>
           <layout class="QFormLayout" name="formLayout_6">
-           <item row="0" column="0">
-            <widget class="QCheckBox" name="rgb_photos_ok_checkbox">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="checkable">
-              <bool>true</bool>
-             </property>
-             <property name="checked">
-              <bool>false</bool>
-             </property>
-             <property name="autoRepeat">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
+           <property name="fieldGrowthPolicy">
+            <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+           </property>
+           <property name="leftMargin">
+            <number>5</number>
+           </property>
            <item row="0" column="1">
             <widget class="QPushButton" name="rgb_calibration_files_button">
              <property name="palette">
@@ -619,38 +600,32 @@
              </property>
             </widget>
            </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QFormLayout" name="formLayout">
-           <property name="fieldGrowthPolicy">
-            <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-           </property>
            <item row="0" column="0">
-            <widget class="QLabel" name="label_3">
-             <property name="text">
-              <string>Chessboard cell size (meters)</string>
+            <widget class="QCheckBox" name="rgb_photos_ok_checkbox">
+             <property name="enabled">
+              <bool>false</bool>
              </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLineEdit" name="cell_size_edit">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="text">
-              <string>0.1</string>
+              <string/>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+             <property name="autoRepeat">
+              <bool>false</bool>
              </property>
             </widget>
            </item>
           </layout>
-         </item>
-         <item>
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Corresponding chessboard photos:</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
          </item>
          <item>
           <widget class="QTableWidget" name="rgb_tv_table">
@@ -685,6 +660,37 @@
              <string>Camera-2 photo</string>
             </property>
            </column>
+          </widget>
+         </item>
+         <item>
+          <layout class="QFormLayout" name="formLayout">
+           <property name="fieldGrowthPolicy">
+            <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+           </property>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>Chessboard cell size (meters)</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="cell_size_edit">
+             <property name="text">
+              <string>0.1</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Corresponding chessboard photos:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
           </widget>
          </item>
          <item>
