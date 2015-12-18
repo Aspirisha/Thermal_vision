@@ -31,6 +31,7 @@ def get_photo_matching_by_location():
                 matching[c1.label] = c2.label
     return matching
 
+
 def perform_relative_alignment(tv_to_rgb_matrix, photo_matching_file, calibration_file):
     camera_name_to_index = {}
     doc = PhotoScan.app.document
@@ -54,7 +55,6 @@ def perform_relative_alignment(tv_to_rgb_matrix, photo_matching_file, calibratio
 
     tv_to_rgb_matrix = scale_transform_matrix(tv_to_rgb_matrix, chunk_scale)
 
-    print(rgb_to_tv_matching)
     # apply calibration to cameras sensor
     # we can take any camera!
     tv_camera = None
@@ -108,13 +108,15 @@ def get_chunk_scale_no_crs(camera1, camera2, real_world_distance_in_meters):
 def scale_transform_matrix(m, chunk_scale):
     new_mat = m.copy()
     for i in range(3):
-        new_mat[3, i] *= chunk_scale
+        new_mat[i, 3] *= chunk_scale
     return new_mat
+
 
 def slerp(v1, v2, t):
     cos_omega = v1 * v2 / (v1.norm() * v2.norm())
     omega = math.acos(cos_omega) / 2.0
     return (math.sin((1-t) * omega) * v1 + math.sin(t * omega) * v2)/math.sin(omega)
+
 
 def lerp(v1, v2, t):
     return (v1 * (1 - t) + v2 * t)
