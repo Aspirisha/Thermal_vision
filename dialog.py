@@ -360,7 +360,14 @@ def f():
 
 
 def main():
+    settings = QtCore.QSettings()
+    lang = settings.value('main/language')
+    translator = QtCore.QTranslator()
+
+    trans_file = 'ru_RU' if lang is 'ru' else 'en_GB'
+    translator.load(support_directory + os.sep + 'trans' + os.sep + trans_file)
     qtapp = QtGui.QApplication(sys.argv)
+    qtapp.installTranslator(translator)
     dlg = ControlDialog()
     dlg.show()
     qtapp.exec_()
