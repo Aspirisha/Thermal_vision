@@ -20,6 +20,12 @@ import json
 import xml.dom.minidom as xdm
 from relalign import perform_relative_alignment
 
+def check_can_write_file(file_name):
+    try:
+        f = open(file_name, "w")
+        return True
+    except OSError:
+        return False
 
 def write_tv_calibration_to_file(file_name, camera_matrix, dist_coeffs, tv_width, tv_height):
     doc = xdm.Document()
@@ -145,6 +151,7 @@ class ControlDialog(QtGui.QDialog):
         config_abs_path = self.write_config(rgb_images, tv_images, rgb_relative_file_names, tv_relative_file_names, cell_size)
 
         save_file = str(self.file_name_to_save_matrices.encode(sys.getfilesystemencoding()), encoding)
+
         if os.name != 'nt':
             commandline_args = ["--config", config_abs_path]
             commandline_args += ["--save-file", save_file]
@@ -169,7 +176,7 @@ class ControlDialog(QtGui.QDialog):
 
         try:
             tv_to_rgb_matrix, cameraMatrix_tv, distCoeffs_tv, tv_image_width, \
-                tv_image_height = read_matrices(self.file_name_to_save_matrices)
+                tv_image_height = read_matrices(self.file_name_to_load_matrices)
         except:
             print("Error loading calibrations file. Make sure file was produced with this software.")
 
@@ -217,11 +224,12 @@ class ControlDialog(QtGui.QDialog):
                 "QFileDialog.getSaveFileName()",
                 self.last_path + os.sep + "calibration.txt",
                 "All Files (*);;Text Files (*.txt)", "", options)
-        if file_name is not None:
+        if file_name is not None and check_can_write_file(file_name):
             self.file_name_to_save_matrices = file_name
             self.ui.save_matrices_file_edit.setText(file_name)
         else:
             self.file_name_to_save_matrices = ControlDialog.DEFAULT_MATRICES_FILE
+            self.ui.save_matrices_file_edit.setText("")
 
 
     def use_matrices_from_file_clicked(self):

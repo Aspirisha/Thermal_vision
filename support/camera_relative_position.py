@@ -112,32 +112,30 @@ def main(config_file=None, save_file=None):
         config_file = args.config_file
         save_file = args.save_file
 
-    f = open(config_file, 'r')
-
-    rgb_images = read_images(f)
-    tv_images = read_images(f)
-    cell_size = float(f.readline().strip('\n'))
-    rgb_relative, tv_relative = read_pairs(f)
-    f.close()
+    with open(config_file, 'r') as f:
+        rgb_images = read_images(f)
+        tv_images = read_images(f)
+        cell_size = float(f.readline().strip('\n'))
+        rgb_relative, tv_relative = read_pairs(f)
+        f.close()
 
     A, cameraMatrix_tv, distCoeffs_tv, cameraMatrix_rgb, distCoeffs_rgb = \
         get_tv_to_rgb_matrix(rgb_images, tv_images, rgb_relative, tv_relative, cell_size)
     tv_image_width, tv_image_height = calib.get_image_size(tv_images[0])
 
-    f = open(save_file, "w")
-
-    json.dump(cameraMatrix_rgb.tolist(), f)
-    f.write('\n')
-    json.dump(distCoeffs_rgb.tolist(), f)
-    f.write('\n')
-    json.dump(cameraMatrix_tv.tolist(), f)
-    f.write('\n')
-    json.dump(distCoeffs_tv.tolist(), f)
-    f.write('\n')
-    json.dump(A.tolist(), f)
-    f.write('\n')
-    json.dump([tv_image_width, tv_image_height], f)
-    f.close()
+    with open(save_file, "w") as f:
+        json.dump(cameraMatrix_rgb.tolist(), f)
+        f.write('\n')
+        json.dump(distCoeffs_rgb.tolist(), f)
+        f.write('\n')
+        json.dump(cameraMatrix_tv.tolist(), f)
+        f.write('\n')
+        json.dump(distCoeffs_tv.tolist(), f)
+        f.write('\n')
+        json.dump(A.tolist(), f)
+        f.write('\n')
+        json.dump([tv_image_width, tv_image_height], f)
+        f.close()
 
 if __name__ == '__main__':
     main()
