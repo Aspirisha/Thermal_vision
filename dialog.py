@@ -379,4 +379,4 @@ if DEBUG:
         main()
 else:
     dlg = ControlDialog()
-    ps.app.addMenuItem("Workflow/Relative Photo Alignment...", f) #uncomment
+    ps.app.addMenuItem(dlg.tr("Workflow/Relative Photo Alignment..."), f) #uncomment

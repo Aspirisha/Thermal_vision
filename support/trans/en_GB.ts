@@ -101,4 +101,12 @@
         <translation type="unfinished"></translation>
     </message>
 </context>
+<context>
+    <name>dlg</name>
+    <message>
+        <location filename="../dialog.py" line="382"/>
+        <source>Workflow/Relative Photo Alignment...</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
 </TS>
