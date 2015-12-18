@@ -2,7 +2,8 @@
 
 # Form implementation generated from reading ui file 'dialog.ui'
 #
-
+# Created: Fri Dec 18 20:53:11 2015
+#      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +13,6 @@ class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
         Dialog.resize(453, 704)
-
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -287,35 +287,12 @@ class Ui_Dialog(object):
         self.save_matrices_file_edit.setObjectName("save_matrices_file_edit")
         self.calibration_file_options_layout_3.addWidget(self.save_matrices_file_edit)
         self.calculate_matrices_opt_layout.addLayout(self.calibration_file_options_layout_3)
-        self.formLayoutWidget = QtGui.QWidget(self.groupBox)
-        self.formLayoutWidget.setGeometry(QtCore.QRect(10, 580, 421, 31))
-        self.formLayoutWidget.setObjectName("formLayoutWidget")
-        self.formLayout_3 = QtGui.QFormLayout(self.formLayoutWidget)
-        self.formLayout_3.setFieldGrowthPolicy(QtGui.QFormLayout.AllNonFixedFieldsGrow)
-        self.formLayout_3.setContentsMargins(0, 0, 0, 0)
-        self.formLayout_3.setObjectName("formLayout_3")
-        self.matching_file_button = QtGui.QPushButton(self.formLayoutWidget)
-        self.matching_file_button.setEnabled(False)
-        self.matching_file_button.setObjectName("matching_file_button")
-        self.formLayout_3.setWidget(0, QtGui.QFormLayout.LabelRole, self.matching_file_button)
-        self.matching_file_edit = QtGui.QLineEdit(self.formLayoutWidget)
-        self.matching_file_edit.setEnabled(False)
-        self.matching_file_edit.setReadOnly(True)
-        self.matching_file_edit.setObjectName("matching_file_edit")
-        self.formLayout_3.setWidget(0, QtGui.QFormLayout.FieldRole, self.matching_file_edit)
-        self.groupBox_4 = QtGui.QGroupBox(self.groupBox)
-        self.groupBox_4.setGeometry(QtCore.QRect(20, 530, 331, 41))
-        self.groupBox_4.setTitle("")
-        self.groupBox_4.setObjectName("groupBox_4")
-        self.match_by_location_radio = QtGui.QRadioButton(self.groupBox_4)
-        self.match_by_location_radio.setGeometry(QtCore.QRect(0, 0, 191, 22))
-        self.match_by_location_radio.setChecked(True)
-        self.match_by_location_radio.setObjectName("match_by_location_radio")
-        self.match_by_file_radio = QtGui.QRadioButton(self.groupBox_4)
-        self.match_by_file_radio.setGeometry(QtCore.QRect(0, 20, 181, 22))
-        self.match_by_file_radio.setObjectName("match_by_file_radio")
-        self.horizontalLayoutWidget = QtGui.QWidget(self.groupBox)
-        self.horizontalLayoutWidget.setGeometry(QtCore.QRect(0, 480, 431, 41))
+        self.groupBox_3 = QtGui.QGroupBox(self.groupBox)
+        self.groupBox_3.setGeometry(QtCore.QRect(-10, 480, 491, 51))
+        self.groupBox_3.setTitle("")
+        self.groupBox_3.setObjectName("groupBox_3")
+        self.horizontalLayoutWidget = QtGui.QWidget(self.groupBox_3)
+        self.horizontalLayoutWidget.setGeometry(QtCore.QRect(10, 0, 431, 41))
         self.horizontalLayoutWidget.setObjectName("horizontalLayoutWidget")
         self.calibration_file_options_layout = QtGui.QHBoxLayout(self.horizontalLayoutWidget)
         self.calibration_file_options_layout.setContentsMargins(0, 0, 0, 0)
@@ -334,6 +311,33 @@ class Ui_Dialog(object):
         self.select_matrices_file_edit.setReadOnly(True)
         self.select_matrices_file_edit.setObjectName("select_matrices_file_edit")
         self.calibration_file_options_layout.addWidget(self.select_matrices_file_edit)
+        self.formLayoutWidget = QtGui.QWidget(self.groupBox)
+        self.formLayoutWidget.setGeometry(QtCore.QRect(10, 580, 421, 31))
+        self.formLayoutWidget.setObjectName("formLayoutWidget")
+        self.formLayout_3 = QtGui.QFormLayout(self.formLayoutWidget)
+        self.formLayout_3.setFieldGrowthPolicy(QtGui.QFormLayout.AllNonFixedFieldsGrow)
+        self.formLayout_3.setContentsMargins(0, 0, 0, 0)
+        self.formLayout_3.setObjectName("formLayout_3")
+        self.matching_file_button = QtGui.QPushButton(self.formLayoutWidget)
+        self.matching_file_button.setEnabled(False)
+        self.matching_file_button.setObjectName("matching_file_button")
+        self.formLayout_3.setWidget(0, QtGui.QFormLayout.LabelRole, self.matching_file_button)
+        self.matching_file_edit = QtGui.QLineEdit(self.formLayoutWidget)
+        self.matching_file_edit.setEnabled(False)
+        self.matching_file_edit.setReadOnly(True)
+        self.matching_file_edit.setObjectName("matching_file_edit")
+        self.formLayout_3.setWidget(0, QtGui.QFormLayout.FieldRole, self.matching_file_edit)
+        self.groupBox_4 = QtGui.QGroupBox(self.groupBox)
+        self.groupBox_4.setGeometry(QtCore.QRect(10, 530, 361, 41))
+        self.groupBox_4.setTitle("")
+        self.groupBox_4.setObjectName("groupBox_4")
+        self.match_by_location_radio = QtGui.QRadioButton(self.groupBox_4)
+        self.match_by_location_radio.setGeometry(QtCore.QRect(0, 0, 191, 22))
+        self.match_by_location_radio.setChecked(True)
+        self.match_by_location_radio.setObjectName("match_by_location_radio")
+        self.match_by_file_radio = QtGui.QRadioButton(self.groupBox_4)
+        self.match_by_file_radio.setGeometry(QtCore.QRect(0, 20, 181, 22))
+        self.match_by_file_radio.setObjectName("match_by_file_radio")
         self.gridLayout.addWidget(self.groupBox, 0, 0, 1, 1)
 
         self.retranslateUi(Dialog)
@@ -347,6 +351,7 @@ class Ui_Dialog(object):
         QtCore.QObject.connect(self.match_by_file_radio, QtCore.SIGNAL("clicked()"), Dialog.match_photos_by_file_radio_clicked)
         QtCore.QObject.connect(self.match_by_location_radio, QtCore.SIGNAL("clicked()"), Dialog.match_photos_by_location_radio_clicked)
         QtCore.QObject.connect(self.matching_file_button, QtCore.SIGNAL("clicked()"), Dialog.on_select_matching_file_button_clicked)
+        QtCore.QObject.connect(self.select_calibration_file_button, QtCore.SIGNAL("clicked()"), Dialog.use_matrices_from_file_clicked)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
@@ -363,10 +368,8 @@ class Ui_Dialog(object):
         self.rgb_tv_table.horizontalHeaderItem(1).setText(QtGui.QApplication.translate("Dialog", "Camera-2 photo", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("Dialog", "Corresponding chessboard photos:", None, QtGui.QApplication.UnicodeUTF8))
         self.matrices_save_button.setText(QtGui.QApplication.translate("Dialog", "Save calibration to file...", None, QtGui.QApplication.UnicodeUTF8))
-
         self.select_calibration_file_button.setText(QtGui.QApplication.translate("Dialog", "Select calibration file", None, QtGui.QApplication.UnicodeUTF8))
         self.matching_file_button.setText(QtGui.QApplication.translate("Dialog", "Select file containing matching", None, QtGui.QApplication.UnicodeUTF8))
         self.match_by_location_radio.setText(QtGui.QApplication.translate("Dialog", "Match photos by location", None, QtGui.QApplication.UnicodeUTF8))
         self.match_by_file_radio.setText(QtGui.QApplication.translate("Dialog", "Match photos using file", None, QtGui.QApplication.UnicodeUTF8))
-        self.select_calibration_file_button.setText(QtGui.QApplication.translate("Dialog", "Select calibration file", None, QtGui.QApplication.UnicodeUTF8))
 
