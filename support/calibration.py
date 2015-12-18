@@ -29,16 +29,19 @@ def get_image_points(fname, inner_width, inner_height):
         print("fail with " + fname) 
     return None  
 
+
 def build_obj_points(inner_width, inner_height):
     # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
     objp = np.zeros((inner_height*inner_width,3), np.float32)
     objp[:,:2] = np.mgrid[0:inner_width,0:inner_height].T.reshape(-1,2)
     return objp
 
+
 def get_image_size(fname):
     img = cv2.imread(fname)
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
     return gray.shape[::-1]
+
 
 def calibrate_camera(images, inner_width, inner_height):
     objp = build_obj_points(inner_width, inner_height)

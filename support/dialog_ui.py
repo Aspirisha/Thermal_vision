@@ -2,8 +2,7 @@
 
 # Form implementation generated from reading ui file 'dialog.ui'
 #
-# Created: Fri Dec 18 20:42:46 2015
-#      by: pyside-uic 0.2.15 running on PySide 1.2.4
+
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -13,6 +12,7 @@ class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
         Dialog.resize(453, 704)
+
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -363,6 +363,8 @@ class Ui_Dialog(object):
         self.rgb_tv_table.horizontalHeaderItem(1).setText(QtGui.QApplication.translate("Dialog", "Camera-2 photo", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("Dialog", "Corresponding chessboard photos:", None, QtGui.QApplication.UnicodeUTF8))
         self.matrices_save_button.setText(QtGui.QApplication.translate("Dialog", "Save calibration to file...", None, QtGui.QApplication.UnicodeUTF8))
+
+        self.select_calibration_file_button.setText(QtGui.QApplication.translate("Dialog", "Select calibration file", None, QtGui.QApplication.UnicodeUTF8))
         self.matching_file_button.setText(QtGui.QApplication.translate("Dialog", "Select file containing matching", None, QtGui.QApplication.UnicodeUTF8))
         self.match_by_location_radio.setText(QtGui.QApplication.translate("Dialog", "Match photos by location", None, QtGui.QApplication.UnicodeUTF8))
         self.match_by_file_radio.setText(QtGui.QApplication.translate("Dialog", "Match photos using file", None, QtGui.QApplication.UnicodeUTF8))

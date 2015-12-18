@@ -48,11 +48,6 @@ def read_matrices(file_name):
         lst = json.loads(s)
         data.append(lst)
 
-    print('camera_matrix_rgb:')
-    print(ps.Matrix(data[0]))
-    print('dist_coefs_rgb:')
-    print([float(x) for x in data[1]])
-
     tv_to_rgb_matrix = ps.Matrix(data[4])
     cameraMatrix_tv = ps.Matrix(data[2])
     distCoeffs_tv = [float(x) for x in data[3]]
@@ -154,17 +149,6 @@ class ControlDialog(QtGui.QDialog):
             import camera_relative_position as crp
             crp.main(config_abs_path, save_file)
 
-
-        '''while True:
-            print('here')
-            output = p.stdout.readline()
-            if output == '' and p.poll() is not None:
-                break
-            if output:
-                print (output.strip())
-
-            rc = p.poll()'''
-
         msgBox = QtGui.QMessageBox()
         msgBox.setText("Succesfully calibrated cameras.")
         msgBox.setStandardButtons(QtGui.QMessageBox.Ok)
@@ -179,8 +163,11 @@ class ControlDialog(QtGui.QDialog):
             self.file_name_to_load_matrices = str(self.file_name_to_save_matrices.encode(
                     sys.getfilesystemencoding()), encoding)
 
-        tv_to_rgb_matrix, cameraMatrix_tv, distCoeffs_tv, tv_image_width, \
-            tv_image_height = read_matrices(self.file_name_to_save_matrices)
+        try:
+            tv_to_rgb_matrix, cameraMatrix_tv, distCoeffs_tv, tv_image_width, \
+                tv_image_height = read_matrices(self.file_name_to_save_matrices)
+        except:
+            print("Error loading calibrations file. Make sure file was produced with this software.")
 
         calibration_file_name = temp_directory + os.sep + 'tv_calibration.txt'
         write_tv_calibration_to_file(calibration_file_name, cameraMatrix_tv, distCoeffs_tv, tv_image_width, tv_image_height)
@@ -200,9 +187,7 @@ class ControlDialog(QtGui.QDialog):
         f = open(config_file_name, "w")
         f.write(str(len(rgb_images)) + '\n')
         for name in rgb_images:
-            print(sys.getfilesystemencoding())
             n = str(name.encode(sys.getfilesystemencoding()), encoding)
-            print(n.__repr__().strip("'"))
             f.write(n + '\n')
 
         f.write(str(len(tv_images)) + '\n')
@@ -226,7 +211,7 @@ class ControlDialog(QtGui.QDialog):
 
         file_name, filtr = QtGui.QFileDialog.getSaveFileName(self,
                 "QFileDialog.getSaveFileName()",
-                "calibration.txt",
+                self.last_path + os.sep + "calibration.txt",
                 "All Files (*);;Text Files (*.txt)", "", options)
         if file_name is not None:
             self.file_name_to_save_matrices = file_name
