@@ -698,7 +698,7 @@
            <item>
             <widget class="QPushButton" name="matrices_save_button">
              <property name="text">
-              <string>File to save matrices...</string>
+              <string>Save calibration to file...</string>
              </property>
             </widget>
            </item>

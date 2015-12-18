@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dialog.ui'
 #
-# Created: Fri Dec 18 17:54:52 2015
+# Created: Fri Dec 18 18:06:17 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -366,7 +366,7 @@ class Ui_Dialog(object):
         self.label_3.setText(QtGui.QApplication.translate("Dialog", "Chessboard cell size (meters)", None, QtGui.QApplication.UnicodeUTF8))
         self.cell_size_edit.setText(QtGui.QApplication.translate("Dialog", "0.1", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("Dialog", "Corresponding chessboard photos:", None, QtGui.QApplication.UnicodeUTF8))
-        self.matrices_save_button.setText(QtGui.QApplication.translate("Dialog", "File to save matrices...", None, QtGui.QApplication.UnicodeUTF8))
+        self.matrices_save_button.setText(QtGui.QApplication.translate("Dialog", "Save calibration to file...", None, QtGui.QApplication.UnicodeUTF8))
         self.select_calibration_file_button.setText(QtGui.QApplication.translate("Dialog", "Select calibration file", None, QtGui.QApplication.UnicodeUTF8))
         self.matching_file_button.setText(QtGui.QApplication.translate("Dialog", "Select file containing matching", None, QtGui.QApplication.UnicodeUTF8))
         self.match_by_location_radio.setText(QtGui.QApplication.translate("Dialog", "Match photos by location", None, QtGui.QApplication.UnicodeUTF8))
