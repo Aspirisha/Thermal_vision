@@ -98,17 +98,21 @@ def read_pairs(f):
         imgs2.append(f.readline().strip('\n'))
     return imgs1, imgs2
 
-def main():
+
+def main(config_file=None, save_file=None):
     import os
 
     print(os.getcwd())
-    
-    parser = ArgumentParser()
-    parser.add_argument('-c', '--config', action='store', type=str, dest='config_file', help='Calibration configuration file')
-    parser.add_argument('-s', '--save-file', action='store', type=str, dest='save_file', help='File to save calibration results')
-    args = parser.parse_args()
 
-    f = open(args.config_file, 'r')
+    if config_file is None or save_file is None:
+        parser = ArgumentParser()
+        parser.add_argument('-c', '--config', action='store', type=str, dest='config_file', help='Calibration configuration file')
+        parser.add_argument('-s', '--save-file', action='store', type=str, dest='save_file', help='File to save calibration results')
+        args = parser.parse_args()
+        config_file = args.config_file
+        save_file = args.save_file
+
+    f = open(config_file, 'r')
 
     rgb_images = read_images(f)
     tv_images = read_images(f)
@@ -120,7 +124,7 @@ def main():
         get_tv_to_rgb_matrix(rgb_images, tv_images, rgb_relative, tv_relative, cell_size)
     tv_image_width, tv_image_height = calib.get_image_size(tv_images[0])
 
-    f = open(args.save_file, "w")
+    f = open(save_file, "w")
 
     json.dump(cameraMatrix_rgb.tolist(), f)
     f.write('\n')

@@ -2,7 +2,13 @@
 
 import sys
 import os
-support_directory = os.path.dirname(os.path.realpath(__file__)) + os.sep + 'support'
+
+encoding = 'utf8'
+if sys.getfilesystemencoding() == 'mbcs':
+    encoding = 'cp1251'
+
+support_directory = os.path.dirname(os.path.realpath(__file__)) + os.sep + u'support'
+support_directory = str(support_directory.encode(sys.getfilesystemencoding()), 'utf8')
 temp_directory = support_directory + os.sep + '.tmp'
 sys.path.append(support_directory)
 
@@ -85,6 +91,7 @@ class ControlDialog(QtGui.QDialog):
         self.initial_width = self.width()
         self.initial_height = self.height()
         self.calculate_matrices_height = self.ui.groupBox_2.height()
+        self.last_path = ControlDialog.DEFAULT_LOCATION
         self.clear()
 
     def clear_calculate_matrices_data(self):
@@ -138,12 +145,15 @@ class ControlDialog(QtGui.QDialog):
 
         config_abs_path = self.write_config(rgb_images, tv_images, rgb_relative_file_names, tv_relative_file_names, cell_size)
 
-        commandline_args = ["--config", config_abs_path]
-        commandline_args += ["--save-file", self.file_name_to_save_matrices]
+        save_file = str(self.file_name_to_save_matrices.encode(sys.getfilesystemencoding()), encoding)
+        if os.name != 'nt':
+            commandline_args = ["--config", config_abs_path]
+            commandline_args += ["--save-file", save_file]
+            p = subprocess.call([support_directory + os.sep + "run_calibration.sh"] + commandline_args)
+        else: # windows
+            import camera_relative_position as crp
+            crp.main(config_abs_path, save_file)
 
-        print(commandline_args)
-        #with open('query.txt','w') as stdout:
-        p = subprocess.call([support_directory + os.sep + "run_calibration.sh"] + commandline_args)
 
         '''while True:
             print('here')
@@ -166,7 +176,8 @@ class ControlDialog(QtGui.QDialog):
 
         if self.want_calculate:
             self.perform_calibration()
-            self.file_name_to_load_matrices = self.file_name_to_save_matrices
+            self.file_name_to_load_matrices = str(self.file_name_to_save_matrices.encode(
+                    sys.getfilesystemencoding()), encoding)
 
         tv_to_rgb_matrix, cameraMatrix_tv, distCoeffs_tv, tv_image_width, \
             tv_image_height = read_matrices(self.file_name_to_save_matrices)
@@ -184,20 +195,28 @@ class ControlDialog(QtGui.QDialog):
     def write_config(self, rgb_images, tv_images, rgb_relative_file_names, tv_relative_file_names, cell_size):
         config_file_name = 'config.txt'
         abs_path = os.path.abspath(config_file_name)
+        abs_path = str(abs_path.encode(sys.getfilesystemencoding()), encoding)
+
         f = open(config_file_name, "w")
         f.write(str(len(rgb_images)) + '\n')
         for name in rgb_images:
-            f.write(name + '\n')
+            print(sys.getfilesystemencoding())
+            n = str(name.encode(sys.getfilesystemencoding()), encoding)
+            print(n.__repr__().strip("'"))
+            f.write(n + '\n')
 
         f.write(str(len(tv_images)) + '\n')
         for name in tv_images:
-            f.write(name + '\n')
+            n = str(name.encode(sys.getfilesystemencoding()), encoding)
+            f.write(n + '\n')
         f.write(str(cell_size) + '\n')
 
         f.write(str(len(rgb_relative_file_names)) + '\n')
         for r, t in zip(rgb_relative_file_names, tv_relative_file_names):
-            f.write(r + '\n')
-            f.write(t + '\n')
+            rgb = str(r.encode(sys.getfilesystemencoding()), encoding)
+            tv = str(t.encode(sys.getfilesystemencoding()), encoding)
+            f.write(rgb + '\n')
+            f.write(tv + '\n')
         f.close()
         return abs_path
 
@@ -240,8 +259,11 @@ class ControlDialog(QtGui.QDialog):
         files = QtGui.QFileDialog.getOpenFileNames(
                         self,
                         "Select one or more files to open",
-                        ControlDialog.DEFAULT_LOCATION,
-                        "Images (*.png *.xpm *.jpg *.bmp)")[0];
+                        self.last_path,
+                        "Images (*.png *.xpm *.jpg *.bmp)")[0]
+
+        if files is not None and len(files) > 0:
+            self.last_path = os.path.dirname(files[0])
         if len(files) >= ControlDialog.MIN_CALIBRATION_FILES:
             return files
         else:
@@ -255,8 +277,10 @@ class ControlDialog(QtGui.QDialog):
         file_name = QtGui.QFileDialog.getOpenFileName(
                         self,
                         "Select file to open",
-                        ControlDialog.DEFAULT_LOCATION,
-                        "Text files (*.txt)")[0];
+                        self.last_path,
+                        "Text files (*.txt)")[0]
+        if file_name is not None:
+            self.last_path = os.path.dirname(file_name)
         return file_name
 
     def update_tv_comboboxes(self):
@@ -274,7 +298,7 @@ class ControlDialog(QtGui.QDialog):
             self.rgb_calibration_files = files
             self.ui.rgb_photos_ok_checkbox.setChecked(True)
             self.ui.rgb_tv_table.setRowCount(len(files))
-            self.rgb_short_file_names = [s.split('/')[-1] for s in files]
+            self.rgb_short_file_names = [s.split(os.sep)[-1] for s in files]
 
             self.rgb_checkboxes = []            
             self.tv_comboboxes = []
@@ -301,7 +325,7 @@ class ControlDialog(QtGui.QDialog):
     def select_tv_calib_files_clicked(self):
         files = self.select_calibration_files_clicked()
         if files is not None:
-            self.tv_short_file_names = [s.split('/')[-1] for s in files]
+            self.tv_short_file_names = [s.split(os.sep)[-1] for s in files]
             self.tv_calibration_files = files
             self.ui.tv_photos_ok_checkbox.setChecked(True)
             self.update_tv_comboboxes()

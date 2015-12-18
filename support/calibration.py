@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+import os
 
 def get_image_points(fname, inner_width, inner_height):
     print("processing " + fname)
@@ -8,6 +9,8 @@ def get_image_points(fname, inner_width, inner_height):
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
     img = cv2.imread(fname)
+    if img is None:
+        print('ooops!!!')
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 
     # Find the chess board corners
