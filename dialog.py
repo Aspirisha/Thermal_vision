@@ -98,11 +98,23 @@ class ControlDialog(QtGui.QDialog):
         self.last_path = ControlDialog.DEFAULT_LOCATION
         self.translator = None
 
-        self.progress = QtGui.QProgressDialog(self.tr("Calibrating images..."), self.tr("Abort"), 0, 100, self)
+        self.progress = QtGui.QProgressDialog(self.tr("Calibrating images..."), self.tr("Cancel"), 0, 100, self)
         self.progress.setWindowTitle('Calibration progress')
         self.progress.setWindowModality(QtCore.Qt.WindowModal)
+        self.progress.canceled.connect(self.calibration_canceled)
+        self.progress.resize(self.progress.sizeHint() + QtCore.QSize(30, 0))
         self.worker = crp.CalibratorThread()
         self.worker.update_progress.connect(self.set_progress)
+        self.clear()
+
+    def calibration_canceled(self):
+        self.worker.terminate()
+        print('Calibration canceled')
+        while not self.worker.isFinished():
+            time.sleep(0.1)
+
+    def show(self):
+        super(ControlDialog, self).show()
         self.clear()
 
     def set_progress(self, progress):
@@ -168,30 +180,38 @@ class ControlDialog(QtGui.QDialog):
             commandline_args = ["--config", config_abs_path]
             commandline_args += ["--save-file", save_file]
             p = subprocess.call([support_directory + os.sep + "run_calibration.sh"] + commandline_args)
+            return False
         else: # windows
             self.worker.reset(config_abs_path, save_file)
+            self.set_progress(0)
             self.worker.start()
             self.progress.show()
             while self.worker.isRunning():
                 QtGui.qApp.processEvents()
                 time.sleep(0.1)
-            self.set_progress(0)
             self.progress.hide()
+            return self.progress.wasCanceled()
 
     def ok_pressed(self):
         cur_dir = os.getcwd()
         os.chdir(temp_directory)  
 
         if self.want_calculate:
-            self.perform_calibration()
+            result = self.perform_calibration()
             self.file_name_to_load_matrices = str(self.file_name_to_save_matrices.encode(
                     sys.getfilesystemencoding()), encoding)
+            if result:
+                self.progress.reset()
+                os.chdir(cur_dir)
+                return
 
         try:
             tv_to_rgb_matrix, cameraMatrix_tv, distCoeffs_tv, tv_image_width, \
                 tv_image_height = read_matrices(self.file_name_to_load_matrices)
         except:
             print("Error loading calibrations file. Make sure file was produced with this software.")
+            os.chdir(cur_dir)
+            return
 
         calibration_file_name = temp_directory + os.sep + 'tv_calibration.txt'
         write_tv_calibration_to_file(calibration_file_name, cameraMatrix_tv, distCoeffs_tv, tv_image_width, tv_image_height)
@@ -203,13 +223,9 @@ class ControlDialog(QtGui.QDialog):
         print('Relative alignment finished')
         msgBox.setText("Succesfully calibrated cameras.")
         msgBox.setStandardButtons(QtGui.QMessageBox.Ok)
-        msgBox.buttonClicked.connect(partial(ControlDialog.on_finish, self))
+        msgBox.buttonClicked.connect(self.hide)
         msgBox.exec()
 
-
-    def on_finish(self, button):
-        self.clear()
-        self.hide()
 
     def write_config(self, rgb_images, tv_images, rgb_relative_file_names, tv_relative_file_names, cell_size):
         config_file_name = 'config.txt'
@@ -430,7 +446,6 @@ else:
 
     mw = None
     for widget in qtapp.topLevelWidgets():
-        print((widget))
         if type(widget) is QtGui.QMainWindow:
             mw = widget
             print(mw)
