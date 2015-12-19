@@ -21,6 +21,7 @@ import json
 import xml.dom.minidom as xdm
 from relalign import perform_relative_alignment
 import camera_relative_position as crp
+from functools import partial
 
 def check_can_write_file(file_name):
     try:
@@ -98,10 +99,10 @@ class ControlDialog(QtGui.QDialog):
         self.translator = None
 
         self.progress = QtGui.QProgressDialog(self.tr("Calibrating images..."), self.tr("Abort"), 0, 100, self)
-
+        self.progress.setWindowTitle('Calibration progress')
+        self.progress.setWindowModality(QtCore.Qt.WindowModal)
         self.worker = crp.CalibratorThread()
         self.worker.update_progress.connect(self.set_progress)
-        print(self.worker)
         self.clear()
 
     def set_progress(self, progress):
@@ -143,7 +144,7 @@ class ControlDialog(QtGui.QDialog):
         self.photo_matching_file = None
         self.ui.matching_file_edit.setText("")
         self.want_calculate = True
-        pass
+        self.progress.hide()
 
     def perform_calibration(self):
         rgb_images = self.rgb_calibration_files
@@ -177,12 +178,6 @@ class ControlDialog(QtGui.QDialog):
             self.set_progress(0)
             self.progress.hide()
 
-        msgBox = QtGui.QMessageBox()
-        print('Relative alignment finished')
-        msgBox.setText("Succesfully calibrated cameras.")
-        msgBox.setStandardButtons(QtGui.QMessageBox.Ok)
-        msgBox.show()
-
     def ok_pressed(self):
         cur_dir = os.getcwd()
         os.chdir(temp_directory)  
@@ -204,7 +199,15 @@ class ControlDialog(QtGui.QDialog):
         os.chdir(cur_dir)  
 
         perform_relative_alignment(tv_to_rgb_matrix, self.photo_matching_file, calibration_file_name) #uncomment
-        
+        msgBox = QtGui.QMessageBox()
+        print('Relative alignment finished')
+        msgBox.setText("Succesfully calibrated cameras.")
+        msgBox.setStandardButtons(QtGui.QMessageBox.Ok)
+        msgBox.buttonClicked.connect(partial(ControlDialog.on_finish, self))
+        msgBox.exec()
+
+
+    def on_finish(self, button):
         self.clear()
         self.hide()
 
@@ -234,6 +237,8 @@ class ControlDialog(QtGui.QDialog):
         f.close()
         return abs_path
 
+    #def tr(self, str):
+    #    return self.translator.translate('dlg', str)
 
     def save_matrices_to_file_clicked(self):
         options = QtGui.QFileDialog.Options()
@@ -404,7 +409,14 @@ def set_translator(qtapp):
 def main():
     qtapp = QtGui.QApplication(sys.argv)
     set_translator(qtapp)
-    dlg = ControlDialog()
+
+    mw = None
+    for widget in qtapp.topLevelWidgets():
+        if type(widget) is QtGui.QMainWidget:
+            mw = widget
+
+    print(mw)
+    dlg = ControlDialog(qtapp)
     dlg.show()
     qtapp.exec_()
 
@@ -414,9 +426,15 @@ if DEBUG:
     if __name__ == '__main__':
         main()
 else:
-    dlg = ControlDialog()
     qtapp = QtGui.QApplication.instance()
-    print(qtapp)
+
+    mw = None
+    for widget in qtapp.topLevelWidgets():
+        print((widget))
+        if type(widget) is QtGui.QMainWindow:
+            mw = widget
+            print(mw)
+    dlg = ControlDialog(mw)
     translator = set_translator(qtapp)
     dlg.set_translator(translator)
-    ps.app.addMenuItem(translator.translate('dlg', "Workflow/Relative Photo Alignment..."), f) #uncomment
+    ps.app.addMenuItem(dlg.tr("Workflow/Relative Photo Alignment..."), f) #uncomment
