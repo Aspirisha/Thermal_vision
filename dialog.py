@@ -2,6 +2,7 @@
 
 import sys
 import os
+import time
 
 encoding = 'utf8'
 if sys.getfilesystemencoding() == 'mbcs':
@@ -19,7 +20,7 @@ import subprocess
 import json
 import xml.dom.minidom as xdm
 from relalign import perform_relative_alignment
-#import camera_relative_position as crp
+import camera_relative_position as crp
 
 def check_can_write_file(file_name):
     try:
@@ -96,10 +97,11 @@ class ControlDialog(QtGui.QDialog):
         self.last_path = ControlDialog.DEFAULT_LOCATION
         self.translator = None
 
-      #  self.progress = QtGui.QProgressDialog("Copying files...", "Abort Copy", 0, 100, self)
+        self.progress = QtGui.QProgressDialog(self.tr("Calibrating images..."), self.tr("Abort"), 0, 100, self)
 
-        #self.worker = crp.CalibratorThread()
-        #self.worker.update_progress.connect(self.set_progress)
+        self.worker = crp.CalibratorThread()
+        self.worker.update_progress.connect(self.set_progress)
+        print(self.worker)
         self.clear()
 
     def set_progress(self, progress):
@@ -135,7 +137,6 @@ class ControlDialog(QtGui.QDialog):
         self.clear_calculate_matrices_data()
         self.clear_load_matrices_data()
 
-        self.worker = None
         self.can_start_flag = 0
         self.ui.matching_file_edit.setText("")
         self.ui.ok_button.setEnabled(False)
@@ -169,9 +170,15 @@ class ControlDialog(QtGui.QDialog):
         else: # windows
             self.worker.reset(config_abs_path, save_file)
             self.worker.start()
-            #crp.main(config_abs_path, save_file)
+            self.progress.show()
+            while self.worker.isRunning():
+                QtGui.qApp.processEvents()
+                time.sleep(0.1)
+            self.set_progress(0)
+            self.progress.hide()
 
         msgBox = QtGui.QMessageBox()
+        print('Relative alignment finished')
         msgBox.setText("Succesfully calibrated cameras.")
         msgBox.setStandardButtons(QtGui.QMessageBox.Ok)
         msgBox.show()

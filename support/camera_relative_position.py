@@ -28,11 +28,15 @@ def get_tv_to_rgb_matrix(rgb_calibration_file_names, tv_calibration_file_names, 
 
     objpoints = calib.build_obj_points(inner_width, inner_height)
 
+    solo_calibrated_points_tv = img_points_tv
+    solo_calibrated_points_rgb = img_points_rgb
     img_points_tv = []
     img_points_rgb = []
     for fname_rgb, fname_tv in zip(rgb_relative_file_names, tv_relative_file_names):
-        rgb_points = calib.get_image_points(fname_rgb, inner_width, inner_height)
-        tv_points = calib.get_image_points(fname_tv, inner_width, inner_height)
+        tv_points = solo_calibrated_points_tv[tv_calibration_file_names.index(fname_tv)]
+        rgb_points = solo_calibrated_points_rgb[rgb_calibration_file_names.index(fname_rgb)]
+        #rgb_points = calib.get_image_points(fname_rgb, inner_width, inner_height)
+        #tv_points = calib.get_image_points(fname_tv, inner_width, inner_height)
 
         if (rgb_points is not None and tv_points is not None):
             img_points_rgb.append(rgb_points)
@@ -69,6 +73,28 @@ def read_pairs(f):
     return imgs1, imgs2
 
 
+def run_calibration(rgb_images, tv_images, rgb_relative, tv_relative, cell_size, on_calibrated_signal=None):
+    A, cameraMatrix_tv, distCoeffs_tv, cameraMatrix_rgb, distCoeffs_rgb = \
+        get_tv_to_rgb_matrix(rgb_images, tv_images, rgb_relative, tv_relative, cell_size, on_calibrated_signal)
+    tv_image_width, tv_image_height = calib.get_image_size(tv_images[0])
+    return tv_image_width, tv_image_height, \
+                             A, cameraMatrix_tv, distCoeffs_tv, cameraMatrix_rgb, distCoeffs_rgb
+
+def dump_calibration_results(save_file, tv_image_width, tv_image_height,
+                             A, cameraMatrix_tv, distCoeffs_tv, cameraMatrix_rgb, distCoeffs_rgb):
+    with open(save_file, "w") as f:
+        json.dump(cameraMatrix_rgb.tolist(), f)
+        f.write('\n')
+        json.dump(distCoeffs_rgb.tolist(), f)
+        f.write('\n')
+        json.dump(cameraMatrix_tv.tolist(), f)
+        f.write('\n')
+        json.dump(distCoeffs_tv.tolist(), f)
+        f.write('\n')
+        json.dump(A.tolist(), f)
+        f.write('\n')
+        json.dump([tv_image_width, tv_image_height], f)
+
 def main(config_file=None, save_file=None):
     import os
 
@@ -88,23 +114,8 @@ def main(config_file=None, save_file=None):
         cell_size = float(f.readline().strip('\n'))
         rgb_relative, tv_relative = read_pairs(f)
 
-    A, cameraMatrix_tv, distCoeffs_tv, cameraMatrix_rgb, distCoeffs_rgb = \
-        get_tv_to_rgb_matrix(rgb_images, tv_images, rgb_relative, tv_relative, cell_size)
-    tv_image_width, tv_image_height = calib.get_image_size(tv_images[0])
-
-    with open(save_file, "w") as f:
-        json.dump(cameraMatrix_rgb.tolist(), f)
-        f.write('\n')
-        json.dump(distCoeffs_rgb.tolist(), f)
-        f.write('\n')
-        json.dump(cameraMatrix_tv.tolist(), f)
-        f.write('\n')
-        json.dump(distCoeffs_tv.tolist(), f)
-        f.write('\n')
-        json.dump(A.tolist(), f)
-        f.write('\n')
-        json.dump([tv_image_width, tv_image_height], f)
-        f.close()
+    res = run_calibration(rgb_images, tv_images, rgb_relative, tv_relative, cell_size, save_file)
+    dump_calibration_results(save_file, *res)
 
 class CalibratorThread(QtCore.QThread):
     update_progress = QtCore.Signal(int)
@@ -125,19 +136,18 @@ class CalibratorThread(QtCore.QThread):
             self.tv_images = read_images(f)
             self.cell_size = float(f.readline().strip('\n'))
             self.rgb_relative, self.tv_relative = read_pairs(f)
-            self.images_to_calibrate = len(self.rgb_relative) + len(self.tv_relative) + \
-                len(self.rgb_images) + len(self.tv_images)
+            self.images_to_calibrate = len(self.rgb_images) + len(self.tv_images)
             self.percent_per_image = 100.0 / self.images_to_calibrate
 
     def on_image_calibrated(self, success):
         self.calibrated_images += 1
-        CalibratorThread.update_progress.emit(int(self.calibrated_images * self.percent_per_image))
+        self.update_progress.emit(int(self.calibrated_images * self.percent_per_image))
 
     def run(self):
-        return get_tv_to_rgb_matrix(self.rgb_images, self.tv_images, self.rgb_relative,
+        res = run_calibration(self.rgb_images, self.tv_images, self.rgb_relative,
                                     self.tv_relative, self.cell_size,
                                     partial(CalibratorThread.on_image_calibrated, self))
-
+        dump_calibration_results(self.save_file, *res)
 
 
 if __name__ == '__main__':

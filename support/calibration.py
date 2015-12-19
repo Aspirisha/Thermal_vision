@@ -10,7 +10,7 @@ def get_image_points(fname, inner_width, inner_height, on_calibrated_signal=None
 
     img = cv2.imread(fname)
     if img is None:
-        print('ooops!!!')
+        print('Could not read image ' + fname)
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 
     # Find the chess board corners
