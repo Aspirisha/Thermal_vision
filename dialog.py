@@ -19,6 +19,7 @@ import subprocess
 import json
 import xml.dom.minidom as xdm
 from relalign import perform_relative_alignment
+#import camera_relative_position as crp
 
 def check_can_write_file(file_name):
     try:
@@ -84,7 +85,7 @@ class ControlDialog(QtGui.QDialog):
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)
         self.setLayout(self.ui.gridLayout)
-       
+
         self.ui.groupBox_3.setEnabled(False)
         self.ui.cell_size_edit.setValidator(QtGui.QDoubleValidator(0, 100, 4, self))
 
@@ -94,7 +95,15 @@ class ControlDialog(QtGui.QDialog):
         self.calculate_matrices_height = self.ui.groupBox_2.height()
         self.last_path = ControlDialog.DEFAULT_LOCATION
         self.translator = None
+
+      #  self.progress = QtGui.QProgressDialog("Copying files...", "Abort Copy", 0, 100, self)
+
+        #self.worker = crp.CalibratorThread()
+        #self.worker.update_progress.connect(self.set_progress)
         self.clear()
+
+    def set_progress(self, progress):
+        self.progress.setValue(progress)
 
     def set_translator(self, translator):
         self.translator = translator
@@ -126,6 +135,7 @@ class ControlDialog(QtGui.QDialog):
         self.clear_calculate_matrices_data()
         self.clear_load_matrices_data()
 
+        self.worker = None
         self.can_start_flag = 0
         self.ui.matching_file_edit.setText("")
         self.ui.ok_button.setEnabled(False)
@@ -157,8 +167,9 @@ class ControlDialog(QtGui.QDialog):
             commandline_args += ["--save-file", save_file]
             p = subprocess.call([support_directory + os.sep + "run_calibration.sh"] + commandline_args)
         else: # windows
-            import camera_relative_position as crp
-            crp.main(config_abs_path, save_file)
+            self.worker.reset(config_abs_path, save_file)
+            self.worker.start()
+            #crp.main(config_abs_path, save_file)
 
         msgBox = QtGui.QMessageBox()
         msgBox.setText("Succesfully calibrated cameras.")
@@ -374,12 +385,11 @@ def set_translator(qtapp):
     settings = QtCore.QSettings()
     lang = settings.value('main/language')
     translator = QtCore.QTranslator()
-    print(lang == 'ru')
 
     trans_file = 'en_GB'
     if lang == 'ru':
         trans_file = 'ru_RU'
-    print(trans_file)
+
     translator.load(support_directory + os.sep + 'trans' + os.sep + trans_file)
     qtapp.installTranslator(translator)
     return translator
