@@ -51,7 +51,6 @@ def perform_relative_alignment(tv_to_rgb_matrix, photo_matching_file, calibratio
         camera2 = doc.chunk.cameras[camera_name_to_index[dist_tuple[1]]]
         dist = float(dist_tuple[2])
         chunk_scale = get_chunk_scale_no_crs(camera1, camera2, dist)
-        print(chunk_scale)
 
     tv_to_rgb_matrix = scale_transform_matrix(tv_to_rgb_matrix, chunk_scale)
 
@@ -98,7 +97,7 @@ def get_chunk_scale(chunk):
         scale = (chunk.transform.matrix.inv().mulp(chunk.crs.unproject(e1)) - chunk.transform.matrix.inv().mulp(chunk.crs.unproject(e0))).norm()
         return scale
     except:
-        return 0.4
+        return 1
 
 
 def get_chunk_scale_no_crs(camera1, camera2, real_world_distance_in_meters):

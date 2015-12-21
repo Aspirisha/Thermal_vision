@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 import os
 
-def get_image_points(fname, inner_width, inner_height):
+def get_image_points(fname, inner_width, inner_height, on_calibrated_signal=None):
     print("processing " + fname)
 
     # termination criteria
@@ -10,7 +10,8 @@ def get_image_points(fname, inner_width, inner_height):
 
     img = cv2.imread(fname)
     if img is None:
-        print('ooops!!!')
+        print('Could not read image ' + fname)
+
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 
     # Find the chess board corners
@@ -18,9 +19,11 @@ def get_image_points(fname, inner_width, inner_height):
         cv2.CALIB_CB_FAST_CHECK + cv2.CALIB_CB_ADAPTIVE_THRESH + cv2.CALIB_CB_NORMALIZE_IMAGE)
 
     # If found, add object points, image points (after refining them)
+    if on_calibrated_signal is not None:
+        on_calibrated_signal(ret)
+
     if ret == True:
         print("success with " + fname)
-
         corners2 = cv2.cornerSubPix(gray,corners,(11,11),(-1,-1),criteria)
         img = cv2.drawChessboardCorners(img, (inner_width, inner_height), corners2,ret)
         cv2.imwrite(fname.split(".")[0] + "_out.jpeg", img );
@@ -43,7 +46,7 @@ def get_image_size(fname):
     return gray.shape[::-1]
 
 
-def calibrate_camera(images, inner_width, inner_height):
+def calibrate_camera(images, inner_width, inner_height, on_calibrated_signal=None):
     objp = build_obj_points(inner_width, inner_height)
 
     # Arrays to store object points and image points from all the images.
@@ -52,7 +55,7 @@ def calibrate_camera(images, inner_width, inner_height):
     file_names = []
 
     for fname in images:
-        corners = get_image_points(fname, inner_width, inner_height)
+        corners = get_image_points(fname, inner_width, inner_height, on_calibrated_signal)
         if corners is not None:
             objpoints.append(objp)
             imgpoints.append(corners)

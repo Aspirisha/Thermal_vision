@@ -2,6 +2,7 @@
 
 import sys
 import os
+import time
 
 encoding = 'utf8'
 if sys.getfilesystemencoding() == 'mbcs':
@@ -19,7 +20,15 @@ import subprocess
 import json
 import xml.dom.minidom as xdm
 from relalign import perform_relative_alignment
+import camera_relative_position as crp
+from functools import partial
 
+def check_can_write_file(file_name):
+    try:
+        f = open(file_name, "w")
+        return True
+    except OSError:
+        return False
 
 def write_tv_calibration_to_file(file_name, camera_matrix, dist_coeffs, tv_width, tv_height):
     doc = xdm.Document()
@@ -78,7 +87,7 @@ class ControlDialog(QtGui.QDialog):
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)
         self.setLayout(self.ui.gridLayout)
-       
+
         self.ui.groupBox_3.setEnabled(False)
         self.ui.cell_size_edit.setValidator(QtGui.QDoubleValidator(0, 100, 4, self))
 
@@ -87,7 +96,32 @@ class ControlDialog(QtGui.QDialog):
         self.initial_height = self.height()
         self.calculate_matrices_height = self.ui.groupBox_2.height()
         self.last_path = ControlDialog.DEFAULT_LOCATION
+        self.translator = None
+
+        self.progress = QtGui.QProgressDialog(self.tr("Calibrating images..."), self.tr("Cancel"), 0, 100, self)
+        self.progress.setWindowTitle('Calibration progress')
+        self.progress.setWindowModality(QtCore.Qt.WindowModal)
+        self.progress.canceled.connect(self.calibration_canceled)
+        self.progress.resize(self.progress.sizeHint() + QtCore.QSize(30, 0))
+        self.worker = crp.CalibratorThread()
+        self.worker.update_progress.connect(self.set_progress)
         self.clear()
+
+    def calibration_canceled(self):
+        self.worker.terminate()
+        print('Calibration canceled')
+        while not self.worker.isFinished():
+            time.sleep(0.1)
+
+    def show(self):
+        super(ControlDialog, self).show()
+        self.clear()
+
+    def set_progress(self, progress):
+        self.progress.setValue(progress)
+
+    def set_translator(self, translator):
+        self.translator = translator
 
     def clear_calculate_matrices_data(self):
         self.ui.rgb_photos_ok_checkbox.setChecked(False)
@@ -122,7 +156,7 @@ class ControlDialog(QtGui.QDialog):
         self.photo_matching_file = None
         self.ui.matching_file_edit.setText("")
         self.want_calculate = True
-        pass
+        self.progress.hide()
 
     def perform_calibration(self):
         rgb_images = self.rgb_calibration_files
@@ -141,33 +175,43 @@ class ControlDialog(QtGui.QDialog):
         config_abs_path = self.write_config(rgb_images, tv_images, rgb_relative_file_names, tv_relative_file_names, cell_size)
 
         save_file = str(self.file_name_to_save_matrices.encode(sys.getfilesystemencoding()), encoding)
+
         if os.name != 'nt':
             commandline_args = ["--config", config_abs_path]
             commandline_args += ["--save-file", save_file]
             p = subprocess.call([support_directory + os.sep + "run_calibration.sh"] + commandline_args)
+            return False
         else: # windows
-            import camera_relative_position as crp
-            crp.main(config_abs_path, save_file)
-
-        msgBox = QtGui.QMessageBox()
-        msgBox.setText("Succesfully calibrated cameras.")
-        msgBox.setStandardButtons(QtGui.QMessageBox.Ok)
-        msgBox.show()
+            self.worker.reset(config_abs_path, save_file)
+            self.set_progress(0)
+            self.worker.start()
+            self.progress.show()
+            while self.worker.isRunning():
+                QtGui.qApp.processEvents()
+                time.sleep(0.1)
+            self.progress.hide()
+            return self.progress.wasCanceled()
 
     def ok_pressed(self):
         cur_dir = os.getcwd()
         os.chdir(temp_directory)  
 
         if self.want_calculate:
-            self.perform_calibration()
+            result = self.perform_calibration()
             self.file_name_to_load_matrices = str(self.file_name_to_save_matrices.encode(
                     sys.getfilesystemencoding()), encoding)
+            if result:
+                self.progress.reset()
+                os.chdir(cur_dir)
+                return
 
         try:
             tv_to_rgb_matrix, cameraMatrix_tv, distCoeffs_tv, tv_image_width, \
-                tv_image_height = read_matrices(self.file_name_to_save_matrices)
+                tv_image_height = read_matrices(self.file_name_to_load_matrices)
         except:
             print("Error loading calibrations file. Make sure file was produced with this software.")
+            os.chdir(cur_dir)
+            return
 
         calibration_file_name = temp_directory + os.sep + 'tv_calibration.txt'
         write_tv_calibration_to_file(calibration_file_name, cameraMatrix_tv, distCoeffs_tv, tv_image_width, tv_image_height)
@@ -175,9 +219,13 @@ class ControlDialog(QtGui.QDialog):
         os.chdir(cur_dir)  
 
         perform_relative_alignment(tv_to_rgb_matrix, self.photo_matching_file, calibration_file_name) #uncomment
-        
-        self.clear()
-        self.hide()
+        msgBox = QtGui.QMessageBox()
+        print('Relative alignment finished')
+        msgBox.setText("Succesfully calibrated cameras.")
+        msgBox.setStandardButtons(QtGui.QMessageBox.Ok)
+        msgBox.buttonClicked.connect(self.hide)
+        msgBox.exec()
+
 
     def write_config(self, rgb_images, tv_images, rgb_relative_file_names, tv_relative_file_names, cell_size):
         config_file_name = 'config.txt'
@@ -205,6 +253,8 @@ class ControlDialog(QtGui.QDialog):
         f.close()
         return abs_path
 
+    #def tr(self, str):
+    #    return self.translator.translate('dlg', str)
 
     def save_matrices_to_file_clicked(self):
         options = QtGui.QFileDialog.Options()
@@ -213,11 +263,14 @@ class ControlDialog(QtGui.QDialog):
                 "QFileDialog.getSaveFileName()",
                 self.last_path + os.sep + "calibration.txt",
                 "All Files (*);;Text Files (*.txt)", "", options)
-        if file_name is not None:
+        if file_name is not None and check_can_write_file(file_name):
+
             self.file_name_to_save_matrices = file_name
             self.ui.save_matrices_file_edit.setText(file_name)
         else:
             self.file_name_to_save_matrices = ControlDialog.DEFAULT_MATRICES_FILE
+
+            self.ui.save_matrices_file_edit.setText("")
 
 
     def use_matrices_from_file_clicked(self):
@@ -359,16 +412,30 @@ def f():
     dlg.show()
 
 
-def main():
+def set_translator(qtapp):
     settings = QtCore.QSettings()
     lang = settings.value('main/language')
     translator = QtCore.QTranslator()
 
-    trans_file = 'ru_RU' if lang is 'ru' else 'en_GB'
+    trans_file = 'en_GB'
+    if lang == 'ru':
+        trans_file = 'ru_RU'
+
     translator.load(support_directory + os.sep + 'trans' + os.sep + trans_file)
-    qtapp = QtGui.QApplication(sys.argv)
     qtapp.installTranslator(translator)
-    dlg = ControlDialog()
+    return translator
+
+def main():
+    qtapp = QtGui.QApplication(sys.argv)
+    set_translator(qtapp)
+
+    mw = None
+    for widget in qtapp.topLevelWidgets():
+        if type(widget) is QtGui.QMainWidget:
+            mw = widget
+
+    print(mw)
+    dlg = ControlDialog(qtapp)
     dlg.show()
     qtapp.exec_()
 
@@ -378,5 +445,14 @@ if DEBUG:
     if __name__ == '__main__':
         main()
 else:
-    dlg = ControlDialog()
+    qtapp = QtGui.QApplication.instance()
+
+    mw = None
+    for widget in qtapp.topLevelWidgets():
+        if type(widget) is QtGui.QMainWindow:
+            mw = widget
+            print(mw)
+    dlg = ControlDialog(mw)
+    translator = set_translator(qtapp)
+    dlg.set_translator(translator)
     ps.app.addMenuItem(dlg.tr("Workflow/Relative Photo Alignment..."), f) #uncomment

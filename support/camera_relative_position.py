@@ -5,35 +5,21 @@ import glob
 import json
 import sys
 from argparse import ArgumentParser
+from PySide import QtCore, QtGui
+from functools import partial
 
 # number of inner corners of chessboard we would like to match
 inner_width=9
 inner_height=5
 
-def test():
-    folder = 'chess_lenovo/'
-    rgb_images = glob.glob(folder + 'ch*.jpg')
-    tv_images = glob.glob(folder + 'ch*.jpg')
-    
-    folder = "lenovo_offset_20cm/"
-    rgb_relative_file_names = glob.glob(folder + 'ch1.jpg')
-    tv_relative_file_names = glob.glob(folder + 'ch2.jpg')
-
-    return get_tv_to_rgb_matrix(rgb_images, tv_images, rgb_relative_file_names, tv_relative_file_names,0.027)[0]
-
 def get_tv_to_rgb_matrix(rgb_calibration_file_names, tv_calibration_file_names, rgb_relative_file_names, 
-    tv_relative_file_names, chessboard_cell_width_meters, rgb_camera_matrix = None, rgb_camera_dist = None, tv_camera_matrix = None, tv_camera_dist = None, 
-    calibration_rgb_images_with_this_names_as_relative = None):
-    
-    if rgb_camera_matrix is None or rgb_camera_dist is None or calibration_rgb_images_with_this_names_as_relative is not None:
-        ret_rgb, mtx_rgb, dist_rgb, rvecs_rgb, tvecs_rgb, img_points_rgb, objpoints, used_rgb_files = calib.calibrate_camera(rgb_calibration_file_names, inner_width, inner_height)
-    
-    if tv_camera_matrix is None or tv_camera_dist is None or calibration_rgb_images_with_this_names_as_relative is not None:
-        ret_tv, mtx_tv, dist_tv, rvecs_tv, tvecs_tv, img_points_tv, objpoints, used_tv_files = calib.calibrate_camera(tv_calibration_file_names, inner_width, inner_height)
-    
-    rgb_tv_corresponing_names = dict(zip(rgb_calibration_file_names, tv_calibration_file_names))
-    rgb_files_to_points = dict(zip(used_rgb_files, img_points_rgb))
-    tv_files_to_points = dict(zip(used_tv_files, img_points_tv))
+    tv_relative_file_names, chessboard_cell_width_meters, on_calibrated_signal=None):
+
+    ret_rgb, mtx_rgb, dist_rgb, rvecs_rgb, tvecs_rgb, img_points_rgb, objpoints, used_rgb_files = \
+        calib.calibrate_camera(rgb_calibration_file_names, inner_width, inner_height, on_calibrated_signal)
+
+    ret_tv, mtx_tv, dist_tv, rvecs_tv, tvecs_tv, img_points_tv, objpoints, used_tv_files = \
+        calib.calibrate_camera(tv_calibration_file_names, inner_width, inner_height, on_calibrated_signal)
     
     if rgb_calibration_file_names is not None:
         image_size = calib.get_image_size(rgb_calibration_file_names[0])
@@ -42,35 +28,23 @@ def get_tv_to_rgb_matrix(rgb_calibration_file_names, tv_calibration_file_names, 
 
     objpoints = calib.build_obj_points(inner_width, inner_height)
 
-    if calibration_rgb_images_with_this_names_as_relative is not None:
-        temp_rgb_points = []
-        temp_tv_points = []
-        for rgb_file, rgb_img_points in zip(used_rgb_files, img_points_rgb):
-            if rgb_file not in calibration_rgb_images_with_this_names_as_relative:
-                continue
-            temp_rgb_points.append(rgb_img_points)
-            temp_tv_points.append(tv_files_to_points[rgb_tv_corresponing_names[rgb_file]])
-        img_points_rgb = temp_rgb_points
-        img_points_tv = temp_tv_points
-    elif rgb_relative_file_names is not None:
-        img_points_tv = []
-        img_points_rgb = []
-        for fname_rgb, fname_tv in zip(rgb_relative_file_names, tv_relative_file_names):
-            rgb_points = calib.get_image_points(fname_rgb, inner_width, inner_height)
-            tv_points = calib.get_image_points(fname_tv, inner_width, inner_height)
+    solo_calibrated_points_tv = img_points_tv
+    solo_calibrated_points_rgb = img_points_rgb
+    img_points_tv = []
+    img_points_rgb = []
+    for fname_rgb, fname_tv in zip(rgb_relative_file_names, tv_relative_file_names):
+        tv_points = solo_calibrated_points_tv[tv_calibration_file_names.index(fname_tv)]
+        rgb_points = solo_calibrated_points_rgb[rgb_calibration_file_names.index(fname_rgb)]
+        #rgb_points = calib.get_image_points(fname_rgb, inner_width, inner_height)
+        #tv_points = calib.get_image_points(fname_tv, inner_width, inner_height)
 
-            if (rgb_points is not None and tv_points is not None):
-                img_points_rgb.append(rgb_points)
-                img_points_tv.append(tv_points)
-    else:
-        print("Error: ")
-        pass
+        if (rgb_points is not None and tv_points is not None):
+            img_points_rgb.append(rgb_points)
+            img_points_tv.append(tv_points)
 
     if len(img_points_rgb) == 0:
         print("Considered photos can't be used to determine relative position")
         return None
-
-    #return objpoints, img_points_rgb, img_points_tv, image_size, mtx_rgb, dist_rgb, mtx_tv, dist_tv
 
     retval, cameraMatrix1, distCoeffs1, cameraMatrix2, \
     distCoeffs2, R, T, E, F = calib.calibrate_rgb_and_tv(objpoints, img_points_rgb,
@@ -81,7 +55,7 @@ def get_tv_to_rgb_matrix(rgb_calibration_file_names, tv_calibration_file_names, 
     A = np.append(np.append(R, T, axis=1), np.array([[0, 0, 0, 1]]), axis=0)
     return A, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2
 
-#ret, mtx, dist, rvecs, tvecs, img_points, objpoints, image_size = test()
+
 def read_images(f):
     img_num = int(f.readline().strip('\n'))
     images = []
@@ -99,6 +73,28 @@ def read_pairs(f):
     return imgs1, imgs2
 
 
+def run_calibration(rgb_images, tv_images, rgb_relative, tv_relative, cell_size, on_calibrated_signal=None):
+    A, cameraMatrix_tv, distCoeffs_tv, cameraMatrix_rgb, distCoeffs_rgb = \
+        get_tv_to_rgb_matrix(rgb_images, tv_images, rgb_relative, tv_relative, cell_size, on_calibrated_signal)
+    tv_image_width, tv_image_height = calib.get_image_size(tv_images[0])
+    return tv_image_width, tv_image_height, \
+                             A, cameraMatrix_tv, distCoeffs_tv, cameraMatrix_rgb, distCoeffs_rgb
+
+def dump_calibration_results(save_file, tv_image_width, tv_image_height,
+                             A, cameraMatrix_tv, distCoeffs_tv, cameraMatrix_rgb, distCoeffs_rgb):
+    with open(save_file, "w") as f:
+        json.dump(cameraMatrix_rgb.tolist(), f)
+        f.write('\n')
+        json.dump(distCoeffs_rgb.tolist(), f)
+        f.write('\n')
+        json.dump(cameraMatrix_tv.tolist(), f)
+        f.write('\n')
+        json.dump(distCoeffs_tv.tolist(), f)
+        f.write('\n')
+        json.dump(A.tolist(), f)
+        f.write('\n')
+        json.dump([tv_image_width, tv_image_height], f)
+
 def main(config_file=None, save_file=None):
     import os
 
@@ -112,32 +108,47 @@ def main(config_file=None, save_file=None):
         config_file = args.config_file
         save_file = args.save_file
 
-    f = open(config_file, 'r')
+    with open(config_file, 'r') as f:
+        rgb_images = read_images(f)
+        tv_images = read_images(f)
+        cell_size = float(f.readline().strip('\n'))
+        rgb_relative, tv_relative = read_pairs(f)
 
-    rgb_images = read_images(f)
-    tv_images = read_images(f)
-    cell_size = float(f.readline().strip('\n'))
-    rgb_relative, tv_relative = read_pairs(f)
-    f.close()
+    res = run_calibration(rgb_images, tv_images, rgb_relative, tv_relative, cell_size)
+    dump_calibration_results(save_file, *res)
 
-    A, cameraMatrix_tv, distCoeffs_tv, cameraMatrix_rgb, distCoeffs_rgb = \
-        get_tv_to_rgb_matrix(rgb_images, tv_images, rgb_relative, tv_relative, cell_size)
-    tv_image_width, tv_image_height = calib.get_image_size(tv_images[0])
+class CalibratorThread(QtCore.QThread):
+    update_progress = QtCore.Signal(int)
 
-    f = open(save_file, "w")
+    def __init__(self):
+        QtCore.QThread.__init__(self)
+        self.config_file = None
+        self.save_file = None
+        self.calibrated_images = 0
 
-    json.dump(cameraMatrix_rgb.tolist(), f)
-    f.write('\n')
-    json.dump(distCoeffs_rgb.tolist(), f)
-    f.write('\n')
-    json.dump(cameraMatrix_tv.tolist(), f)
-    f.write('\n')
-    json.dump(distCoeffs_tv.tolist(), f)
-    f.write('\n')
-    json.dump(A.tolist(), f)
-    f.write('\n')
-    json.dump([tv_image_width, tv_image_height], f)
-    f.close()
+    def reset(self, config_file, save_file):
+        self.config_file = config_file
+        self.save_file = save_file
+        self.calibrated_images = 0
+
+        with open(config_file, 'r') as f:
+            self.rgb_images = read_images(f)
+            self.tv_images = read_images(f)
+            self.cell_size = float(f.readline().strip('\n'))
+            self.rgb_relative, self.tv_relative = read_pairs(f)
+            self.images_to_calibrate = len(self.rgb_images) + len(self.tv_images)
+            self.percent_per_image = 100.0 / self.images_to_calibrate
+
+    def on_image_calibrated(self, success):
+        self.calibrated_images += 1
+        self.update_progress.emit(int(self.calibrated_images * self.percent_per_image))
+
+    def run(self):
+        res = run_calibration(self.rgb_images, self.tv_images, self.rgb_relative,
+                                    self.tv_relative, self.cell_size,
+                                    partial(CalibratorThread.on_image_calibrated, self))
+        dump_calibration_results(self.save_file, *res)
+
 
 if __name__ == '__main__':
     main()
