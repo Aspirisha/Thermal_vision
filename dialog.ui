@@ -658,6 +658,16 @@
           </layout>
          </item>
          <item>
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Corresponding chessboard photos:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QTableWidget" name="rgb_tv_table">
            <property name="sizePolicy">
             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
@@ -690,16 +700,6 @@
              <string>Camera-2 photo</string>
             </property>
            </column>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Corresponding chessboard photos:</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
           </widget>
          </item>
          <item>

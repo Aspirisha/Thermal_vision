@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dialog.ui'
 #
-# Created: Fri Dec 18 20:53:11 2015
+# Created: Mon Dec 28 14:07:58 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -253,6 +253,10 @@ class Ui_Dialog(object):
         self.cell_size_edit.setObjectName("cell_size_edit")
         self.formLayout.setWidget(0, QtGui.QFormLayout.FieldRole, self.cell_size_edit)
         self.calculate_matrices_opt_layout.addLayout(self.formLayout)
+        self.label = QtGui.QLabel(self.verticalLayoutWidget)
+        self.label.setAlignment(QtCore.Qt.AlignCenter)
+        self.label.setObjectName("label")
+        self.calculate_matrices_opt_layout.addWidget(self.label)
         self.rgb_tv_table = QtGui.QTableWidget(self.verticalLayoutWidget)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(1)
@@ -272,10 +276,6 @@ class Ui_Dialog(object):
         self.rgb_tv_table.horizontalHeader().setMinimumSectionSize(200)
         self.rgb_tv_table.horizontalHeader().setStretchLastSection(True)
         self.calculate_matrices_opt_layout.addWidget(self.rgb_tv_table)
-        self.label = QtGui.QLabel(self.verticalLayoutWidget)
-        self.label.setAlignment(QtCore.Qt.AlignCenter)
-        self.label.setObjectName("label")
-        self.calculate_matrices_opt_layout.addWidget(self.label)
         self.calibration_file_options_layout_3 = QtGui.QHBoxLayout()
         self.calibration_file_options_layout_3.setObjectName("calibration_file_options_layout_3")
         self.matrices_save_button = QtGui.QPushButton(self.verticalLayoutWidget)
@@ -364,9 +364,9 @@ class Ui_Dialog(object):
         self.tv_calibration_files_button.setText(QtGui.QApplication.translate("Dialog", "Select camera-2 chessboard photos", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("Dialog", "Chessboard cell size (meters)", None, QtGui.QApplication.UnicodeUTF8))
         self.cell_size_edit.setText(QtGui.QApplication.translate("Dialog", "0.1", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("Dialog", "Corresponding chessboard photos:", None, QtGui.QApplication.UnicodeUTF8))
         self.rgb_tv_table.horizontalHeaderItem(0).setText(QtGui.QApplication.translate("Dialog", "Camera-1 photo", None, QtGui.QApplication.UnicodeUTF8))
         self.rgb_tv_table.horizontalHeaderItem(1).setText(QtGui.QApplication.translate("Dialog", "Camera-2 photo", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("Dialog", "Corresponding chessboard photos:", None, QtGui.QApplication.UnicodeUTF8))
         self.matrices_save_button.setText(QtGui.QApplication.translate("Dialog", "Save calibration to file...", None, QtGui.QApplication.UnicodeUTF8))
         self.select_calibration_file_button.setText(QtGui.QApplication.translate("Dialog", "Select calibration file", None, QtGui.QApplication.UnicodeUTF8))
         self.matching_file_button.setText(QtGui.QApplication.translate("Dialog", "Select file containing matching", None, QtGui.QApplication.UnicodeUTF8))
