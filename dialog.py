@@ -271,6 +271,7 @@ class ControlDialog(QtGui.QDialog):
             n = str(name.encode(sys.getfilesystemencoding()), encoding)
             f.write(n + '\n')
         f.write(str(cell_size) + '\n')
+        f.write(str(self.ui.corners_rows_spinbox.value()) + " " + str(self.ui.corners_cols_spinbox.value()) + "\n")
 
         f.write(str(len(rgb_relative_file_names)) + '\n')
         for r, t in zip(rgb_relative_file_names, tv_relative_file_names):

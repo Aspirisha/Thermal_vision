@@ -9,13 +9,11 @@ from PySide import QtCore, QtGui
 from functools import partial
 
 # number of inner corners of chessboard we would like to match
-inner_width = 9
-inner_height = 5
-
 
 def get_tv_to_rgb_matrix(
     rgb_calibration_file_names, tv_calibration_file_names, rgb_relative_file_names,
-        tv_relative_file_names, chessboard_cell_width_meters, on_calibrated_signal=None):
+        tv_relative_file_names, chessboard_cell_width_meters, inner_width, inner_height,
+        on_calibrated_signal=None):
 
     ret_rgb, mtx_rgb, dist_rgb, rvecs_rgb, tvecs_rgb, img_points_rgb, objpoints, used_rgb_files = \
         calib.calibrate_camera(
@@ -82,10 +80,11 @@ def read_pairs(f):
     return imgs1, imgs2
 
 
-def run_calibration(rgb_images, tv_images, rgb_relative, tv_relative, cell_size, on_calibrated_signal=None):
+def run_calibration(rgb_images, tv_images, rgb_relative, tv_relative, cell_size, inner_width, inner_height,
+                    on_calibrated_signal=None):
     A, cameraMatrix_tv, distCoeffs_tv, cameraMatrix_rgb, distCoeffs_rgb = \
-        get_tv_to_rgb_matrix(
-            rgb_images, tv_images, rgb_relative, tv_relative, cell_size, on_calibrated_signal)
+        get_tv_to_rgb_matrix(rgb_images, tv_images, rgb_relative, tv_relative, cell_size, inner_width,
+                inner_height, on_calibrated_signal)
     tv_image_width, tv_image_height = calib.get_image_size(tv_images[0])
     return tv_image_width, tv_image_height, \
         A, cameraMatrix_tv, distCoeffs_tv, cameraMatrix_rgb, distCoeffs_rgb
@@ -108,10 +107,6 @@ def dump_calibration_results(save_file, tv_image_width, tv_image_height,
 
 
 def main(config_file=None, save_file=None):
-    import os
-
-    print(os.getcwd())
-
     if config_file is None or save_file is None:
         parser = ArgumentParser()
         parser.add_argument('-c', '--config', action='store', type=str,
@@ -126,10 +121,13 @@ def main(config_file=None, save_file=None):
         rgb_images = read_images(f)
         tv_images = read_images(f)
         cell_size = float(f.readline().strip('\n'))
+
+        s = f.readline()
+        corners_rows, corners_cols = [int(x) for x in s.split(" ")]
         rgb_relative, tv_relative = read_pairs(f)
 
-    res = run_calibration(
-        rgb_images, tv_images, rgb_relative, tv_relative, cell_size)
+    res = run_calibration(rgb_images, tv_images, rgb_relative, tv_relative, cell_size, corners_rows,
+                          corners_cols)
     dump_calibration_results(save_file, *res)
 
 
@@ -141,6 +139,16 @@ class CalibratorThread(QtCore.QThread):
         self.config_file = None
         self.save_file = None
         self.calibrated_images = 0
+        self.corners_number = None
+        self.cell_size = None
+        self.tv_images = None
+        self.rgb_images = None
+        self.rgb_relative = None
+        self.tv_relative = None
+        self.images_to_calibrate = None
+        self.corners_rows = 9
+        self.corners_cols = 5
+        self.percent_per_image = 100
 
     def reset(self, config_file, save_file):
         self.config_file = config_file
@@ -151,6 +159,7 @@ class CalibratorThread(QtCore.QThread):
             self.rgb_images = read_images(f)
             self.tv_images = read_images(f)
             self.cell_size = float(f.readline().strip('\n'))
+            self.corners_rows, self.corners_cols = [int(x) for x in f.readline().split(" ")]
             self.rgb_relative, self.tv_relative = read_pairs(f)
             self.images_to_calibrate = len(
                 self.rgb_images) + len(self.tv_images)
@@ -164,7 +173,7 @@ class CalibratorThread(QtCore.QThread):
     def run(self):
         res = run_calibration(
             self.rgb_images, self.tv_images, self.rgb_relative,
-            self.tv_relative, self.cell_size,
+            self.tv_relative, self.cell_size, self.corners_rows, self.corners_cols,
             partial(CalibratorThread.on_image_calibrated, self))
         dump_calibration_results(self.save_file, *res)
 

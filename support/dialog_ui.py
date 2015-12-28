@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dialog.ui'
 #
-# Created: Mon Dec 28 14:07:58 2015
+# Created: Mon Dec 28 15:35:03 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -252,6 +252,20 @@ class Ui_Dialog(object):
         self.cell_size_edit = QtGui.QLineEdit(self.verticalLayoutWidget)
         self.cell_size_edit.setObjectName("cell_size_edit")
         self.formLayout.setWidget(0, QtGui.QFormLayout.FieldRole, self.cell_size_edit)
+        self.label_2 = QtGui.QLabel(self.verticalLayoutWidget)
+        self.label_2.setObjectName("label_2")
+        self.formLayout.setWidget(1, QtGui.QFormLayout.LabelRole, self.label_2)
+        self.horizontalLayout = QtGui.QHBoxLayout()
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.corners_rows_spinbox = QtGui.QSpinBox(self.verticalLayoutWidget)
+        self.corners_rows_spinbox.setMinimum(9)
+        self.corners_rows_spinbox.setObjectName("corners_rows_spinbox")
+        self.horizontalLayout.addWidget(self.corners_rows_spinbox)
+        self.corners_cols_spinbox = QtGui.QSpinBox(self.verticalLayoutWidget)
+        self.corners_cols_spinbox.setMinimum(5)
+        self.corners_cols_spinbox.setObjectName("corners_cols_spinbox")
+        self.horizontalLayout.addWidget(self.corners_cols_spinbox)
+        self.formLayout.setLayout(1, QtGui.QFormLayout.FieldRole, self.horizontalLayout)
         self.calculate_matrices_opt_layout.addLayout(self.formLayout)
         self.label = QtGui.QLabel(self.verticalLayoutWidget)
         self.label.setAlignment(QtCore.Qt.AlignCenter)
@@ -364,6 +378,7 @@ class Ui_Dialog(object):
         self.tv_calibration_files_button.setText(QtGui.QApplication.translate("Dialog", "Select camera-2 chessboard photos", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("Dialog", "Chessboard cell size (meters)", None, QtGui.QApplication.UnicodeUTF8))
         self.cell_size_edit.setText(QtGui.QApplication.translate("Dialog", "0.1", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_2.setText(QtGui.QApplication.translate("Dialog", "Inner corners number (in rows, in columns)", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("Dialog", "Corresponding chessboard photos:", None, QtGui.QApplication.UnicodeUTF8))
         self.rgb_tv_table.horizontalHeaderItem(0).setText(QtGui.QApplication.translate("Dialog", "Camera-1 photo", None, QtGui.QApplication.UnicodeUTF8))
         self.rgb_tv_table.horizontalHeaderItem(1).setText(QtGui.QApplication.translate("Dialog", "Camera-2 photo", None, QtGui.QApplication.UnicodeUTF8))
