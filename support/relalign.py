@@ -1,5 +1,4 @@
 import PhotoScan
-import copy
 import math
 
 DISTANCE_EPS = 1e-5
@@ -46,7 +45,8 @@ def perform_relative_alignment(tv_to_rgb_matrix, photo_matching_file, calibratio
         rgb_to_tv_matching = get_photo_matching_by_location()
         chunk_scale = get_chunk_scale(doc.chunk)
     else:
-        rgb_to_tv_matching, dist_tuple = get_photo_matching_by_file(photo_matching_file)
+        rgb_to_tv_matching, dist_tuple = get_photo_matching_by_file(
+            photo_matching_file)
         camera1 = doc.chunk.cameras[camera_name_to_index[dist_tuple[0]]]
         camera2 = doc.chunk.cameras[camera_name_to_index[dist_tuple[1]]]
         dist = float(dist_tuple[2])
@@ -67,7 +67,7 @@ def perform_relative_alignment(tv_to_rgb_matrix, photo_matching_file, calibratio
         return
 
     new_calibration = PhotoScan.Calibration()
-    new_calibration.load(calibration_file) # /home/plaz/calib.xml
+    new_calibration.load(calibration_file)
     tv_camera.sensor.calibration = new_calibration
 
     for rgb_photo, tv_photo in rgb_to_tv_matching.items():
@@ -88,13 +88,14 @@ def perform_relative_alignment(tv_to_rgb_matrix, photo_matching_file, calibratio
         tv_camera.enabled = True
 
 
-# returns scale. If we multiply it by distance in real world (meters), we get 
-# distance in chunk crs (or, equally, in camera crs for they have same scale) 
+# returns scale. If we multiply it by distance in real world (meters), we get
+# distance in chunk crs (or, equally, in camera crs for they have same scale)
 def get_chunk_scale(chunk):
     e0 = PhotoScan.Vector([0, 0, 0])
     e1 = PhotoScan.Vector([0, 0, 1])
     try:
-        scale = (chunk.transform.matrix.inv().mulp(chunk.crs.unproject(e1)) - chunk.transform.matrix.inv().mulp(chunk.crs.unproject(e0))).norm()
+        scale = (chunk.transform.matrix.inv().mulp(chunk.crs.unproject(e1))
+                 - chunk.transform.matrix.inv().mulp(chunk.crs.unproject(e0))).norm()
         return scale
     except:
         return 1
@@ -114,14 +115,14 @@ def scale_transform_matrix(m, chunk_scale):
 def slerp(v1, v2, t):
     cos_omega = v1 * v2 / (v1.norm() * v2.norm())
     omega = math.acos(cos_omega) / 2.0
-    return (math.sin((1-t) * omega) * v1 + math.sin(t * omega) * v2)/math.sin(omega)
+    return (math.sin((1 - t) * omega) * v1 + math.sin(t * omega) * v2) / math.sin(omega)
 
 
 def lerp(v1, v2, t):
-    return (v1 * (1 - t) + v2 * t)
+    return v1 * (1 - t) + v2 * t
 
 
-# we assume time1 <= time <= time2 
+# we assume time1 <= time <= time2
 # tv_to_rgb_matrix should be somehow predefined
 def get_transfom_matrix_for_tv(rgb_tr_matrix, tv_to_rgb_matrix):
     return rgb_tr_matrix * tv_to_rgb_matrix

@@ -8,8 +8,10 @@ encoding = 'utf8'
 if sys.getfilesystemencoding() == 'mbcs':
     encoding = 'cp1251'
 
-support_directory = os.path.dirname(os.path.realpath(__file__)) + os.sep + u'support'
-support_directory = str(support_directory.encode(sys.getfilesystemencoding()), 'utf8')
+support_directory = os.path.dirname(
+    os.path.realpath(__file__)) + os.sep + u'support'
+support_directory = str(
+    support_directory.encode(sys.getfilesystemencoding()), 'utf8')
 temp_directory = support_directory + os.sep + '.tmp'
 sys.path.append(support_directory)
 
@@ -23,6 +25,10 @@ from relalign import perform_relative_alignment
 import camera_relative_position as crp
 from functools import partial
 
+import numpy as np
+import cv2
+
+
 def check_can_write_file(file_name):
     try:
         f = open(file_name, "w")
@@ -30,14 +36,23 @@ def check_can_write_file(file_name):
     except OSError:
         return False
 
+
+def has_numpy_and_cv():
+    has_numpy = 'sqrt' in dir(np)
+    has_cv = 'stereoCalibrate' in dir(cv2)
+    return has_cv and has_numpy
+
+
 def write_tv_calibration_to_file(file_name, camera_matrix, dist_coeffs, tv_width, tv_height):
     doc = xdm.Document()
     base = doc.createElement('calibration')
     doc.appendChild(base)
 
-    entry_names = ('projection', 'width', 'height', 'fx', 'fy', 'cx', 'cy', 'k1', 'k2', 'k3', 'p1', 'p2')
-    entry_values = ('frame', tv_width, tv_height, camera_matrix[0,0],
-                    camera_matrix[1,1], camera_matrix[0,2], camera_matrix[1,2],
+    entry_names = ('projection', 'width', 'height',
+                   'fx', 'fy', 'cx', 'cy', 'k1', 'k2', 'k3', 'p1', 'p2')
+    entry_values = ('frame', tv_width, tv_height, camera_matrix[0, 0],
+                    camera_matrix[1, 1], camera_matrix[
+                        0, 2], camera_matrix[1, 2],
                     dist_coeffs[0], dist_coeffs[1], dist_coeffs[2], 0, 0)
 
     for name, value in zip(entry_names, entry_values):
@@ -46,8 +61,8 @@ def write_tv_calibration_to_file(file_name, camera_matrix, dist_coeffs, tv_width
         entry.appendChild(doc.createTextNode(str(value)))
 
     doc.writexml(open(file_name, 'w'),
-           indent="  ",
-           encoding="utf-8")
+                 indent="  ",
+                 encoding="utf-8")
 
 
 def read_matrices(file_name):
@@ -64,8 +79,9 @@ def read_matrices(file_name):
 
     return tv_to_rgb_matrix, cameraMatrix_tv, distCoeffs_tv, image_size[0], image_size[1]
 
+
 def show_all_widgets_in_layout(layout, show):
-    items = (layout.itemAt(i) for i in range(layout.count())) 
+    items = (layout.itemAt(i) for i in range(layout.count()))
     for item in items:
         if item.widget() is not None:
             item.widget().hide()
@@ -89,7 +105,8 @@ class ControlDialog(QtGui.QDialog):
         self.setLayout(self.ui.gridLayout)
 
         self.ui.groupBox_3.setEnabled(False)
-        self.ui.cell_size_edit.setValidator(QtGui.QDoubleValidator(0, 100, 4, self))
+        self.ui.cell_size_edit.setValidator(
+            QtGui.QDoubleValidator(0, 100, 4, self))
 
         self.setFixedSize(self.size())
         self.initial_width = self.width()
@@ -98,7 +115,8 @@ class ControlDialog(QtGui.QDialog):
         self.last_path = ControlDialog.DEFAULT_LOCATION
         self.translator = None
 
-        self.progress = QtGui.QProgressDialog(self.tr("Calibrating images..."), self.tr("Cancel"), 0, 100, self)
+        self.progress = QtGui.QProgressDialog(
+            self.tr("Calibrating images..."), self.tr("Cancel"), 0, 100, self)
         self.progress.setWindowTitle('Calibration progress')
         self.progress.setWindowModality(QtCore.Qt.WindowModal)
         self.progress.canceled.connect(self.calibration_canceled)
@@ -161,27 +179,34 @@ class ControlDialog(QtGui.QDialog):
     def perform_calibration(self):
         rgb_images = self.rgb_calibration_files
         tv_images = self.tv_calibration_files
-        
+
         rgb_relative_file_names = []
         tv_relative_file_names = []
         for i, chbox in enumerate(self.rgb_checkboxes):
             if not chbox.isChecked():
                 continue
             rgb_relative_file_names.append(self.rgb_calibration_files[i])
-            tv_relative_file_names.append(self.tv_calibration_files[self.tv_comboboxes[i].currentIndex()])
+            tv_relative_file_names.append(
+                self.tv_calibration_files[self.tv_comboboxes[i].currentIndex()])
 
         cell_size = float(self.ui.cell_size_edit.text())
 
-        config_abs_path = self.write_config(rgb_images, tv_images, rgb_relative_file_names, tv_relative_file_names, cell_size)
+        config_abs_path = self.write_config(
+            rgb_images, tv_images, rgb_relative_file_names, tv_relative_file_names, cell_size)
 
-        save_file = str(self.file_name_to_save_matrices.encode(sys.getfilesystemencoding()), encoding)
+        save_file = str(self.file_name_to_save_matrices.encode(
+            sys.getfilesystemencoding()), encoding)
 
-        if os.name != 'nt':
+        if not has_numpy_and_cv():
             commandline_args = ["--config", config_abs_path]
             commandline_args += ["--save-file", save_file]
-            p = subprocess.call([support_directory + os.sep + "run_calibration.sh"] + commandline_args)
+            if os.name != 'nt':
+                p = subprocess.call(
+                    [support_directory + os.sep + "run_calibration.sh"] + commandline_args)
+            else:
+                pass  # TODO write bat file
             return False
-        else: # windows
+        else:  # windows
             self.worker.reset(config_abs_path, save_file)
             self.set_progress(0)
             self.worker.start()
@@ -194,38 +219,41 @@ class ControlDialog(QtGui.QDialog):
 
     def ok_pressed(self):
         cur_dir = os.getcwd()
-        os.chdir(temp_directory)  
+        os.chdir(temp_directory)
 
         if self.want_calculate:
-            result = self.perform_calibration()
+            has_embedded_cv_and_numpy = self.perform_calibration()
             self.file_name_to_load_matrices = str(self.file_name_to_save_matrices.encode(
-                    sys.getfilesystemencoding()), encoding)
-            if result:
+                sys.getfilesystemencoding()), encoding)
+            if has_embedded_cv_and_numpy:
                 self.progress.reset()
                 os.chdir(cur_dir)
                 return
 
         try:
             tv_to_rgb_matrix, cameraMatrix_tv, distCoeffs_tv, tv_image_width, \
-                tv_image_height = read_matrices(self.file_name_to_load_matrices)
+                tv_image_height = read_matrices(
+                    self.file_name_to_load_matrices)
         except:
-            print("Error loading calibrations file. Make sure file was produced with this software.")
+            print(
+                "Error loading calibrations file. Make sure file was produced with this software.")
             os.chdir(cur_dir)
             return
 
         calibration_file_name = temp_directory + os.sep + 'tv_calibration.txt'
-        write_tv_calibration_to_file(calibration_file_name, cameraMatrix_tv, distCoeffs_tv, tv_image_width, tv_image_height)
+        write_tv_calibration_to_file(
+            calibration_file_name, cameraMatrix_tv, distCoeffs_tv, tv_image_width, tv_image_height)
 
-        os.chdir(cur_dir)  
+        os.chdir(cur_dir)
 
-        perform_relative_alignment(tv_to_rgb_matrix, self.photo_matching_file, calibration_file_name) #uncomment
+        perform_relative_alignment(
+            tv_to_rgb_matrix, self.photo_matching_file, calibration_file_name)  # uncomment
         msgBox = QtGui.QMessageBox()
         print('Relative alignment finished')
         msgBox.setText("Succesfully calibrated cameras.")
         msgBox.setStandardButtons(QtGui.QMessageBox.Ok)
         msgBox.buttonClicked.connect(self.hide)
         msgBox.exec()
-
 
     def write_config(self, rgb_images, tv_images, rgb_relative_file_names, tv_relative_file_names, cell_size):
         config_file_name = 'config.txt'
@@ -253,16 +281,17 @@ class ControlDialog(QtGui.QDialog):
         f.close()
         return abs_path
 
-    #def tr(self, str):
+    # def tr(self, str):
     #    return self.translator.translate('dlg', str)
 
     def save_matrices_to_file_clicked(self):
         options = QtGui.QFileDialog.Options()
 
         file_name, filtr = QtGui.QFileDialog.getSaveFileName(self,
-                "QFileDialog.getSaveFileName()",
-                self.last_path + os.sep + "calibration.txt",
-                "All Files (*);;Text Files (*.txt)", "", options)
+                                                             "QFileDialog.getSaveFileName()",
+                                                             self.last_path + os.sep +
+                                                             "calibration.txt",
+                                                             "All Files (*);;Text Files (*.txt)", "", options)
         if file_name is not None and check_can_write_file(file_name):
 
             self.file_name_to_save_matrices = file_name
@@ -271,7 +300,6 @@ class ControlDialog(QtGui.QDialog):
             self.file_name_to_save_matrices = ControlDialog.DEFAULT_MATRICES_FILE
 
             self.ui.save_matrices_file_edit.setText("")
-
 
     def use_matrices_from_file_clicked(self):
         file_name = self.select_text_file_clicked()
@@ -295,28 +323,30 @@ class ControlDialog(QtGui.QDialog):
 
     def select_calibration_files_clicked(self):
         files = QtGui.QFileDialog.getOpenFileNames(
-                        self,
-                        "Select one or more files to open",
-                        self.last_path,
-                        "Images (*.png *.xpm *.jpg *.bmp)")[0]
+            self,
+            "Select one or more files to open",
+            self.last_path,
+            "Images (*.png *.xpm *.jpg *.bmp)")[0]
 
         if files is not None and len(files) > 0:
             self.last_path = os.path.dirname(files[0])
         if len(files) >= ControlDialog.MIN_CALIBRATION_FILES:
             return files
         else:
-            ret = QtGui.QMessageBox.information(self, self.tr("Calibration files"),
-                   self.tr("Not enough files for calibration. Should be at least " + str(ControlDialog.MIN_CALIBRATION_FILES)),
-                   QtGui.QMessageBox.Ok)
+            ret = QtGui.QMessageBox.information(
+                self, self.tr("Calibration files"),
+                self.tr("Not enough files for calibration. Should be at least " + str(
+                        ControlDialog.MIN_CALIBRATION_FILES)),
+                QtGui.QMessageBox.Ok)
 
             return None
 
     def select_text_file_clicked(self):
         file_name = QtGui.QFileDialog.getOpenFileName(
-                        self,
-                        "Select file to open",
-                        self.last_path,
-                        "Text files (*.txt)")[0]
+            self,
+            "Select file to open",
+            self.last_path,
+            "Text files (*.txt)")[0]
         if file_name is not None:
             self.last_path = os.path.dirname(file_name)
         return file_name
@@ -327,7 +357,6 @@ class ControlDialog(QtGui.QDialog):
             cbox.addItems(self.tv_short_file_names)
             self.rgb_checkboxes[i].stateChanged.connect(cbox.setEnabled)
             self.rgb_checkboxes[i].setEnabled(True)
-            
 
     def select_rgb_calib_files_clicked(self):
         files = self.select_calibration_files_clicked()
@@ -338,7 +367,7 @@ class ControlDialog(QtGui.QDialog):
             self.ui.rgb_tv_table.setRowCount(len(files))
             self.rgb_short_file_names = [s.split(os.sep)[-1] for s in files]
 
-            self.rgb_checkboxes = []            
+            self.rgb_checkboxes = []
             self.tv_comboboxes = []
 
             self.checked_correpsonfing_photos = 0
@@ -348,13 +377,13 @@ class ControlDialog(QtGui.QDialog):
                 new_check_box.setEnabled(False)
                 new_check_box.setText(f)
                 new_check_box.stateChanged.connect(self.table_checkbox_clicked)
-                
+
                 self.rgb_checkboxes.append(new_check_box)
-                self.ui.rgb_tv_table.setCellWidget(i,0,new_check_box)
-                
+                self.ui.rgb_tv_table.setCellWidget(i, 0, new_check_box)
+
                 new_combo_box = QtGui.QComboBox(self)
                 self.tv_comboboxes.append(new_combo_box)
-                self.ui.rgb_tv_table.setCellWidget(i,1,new_combo_box)
+                self.ui.rgb_tv_table.setCellWidget(i, 1, new_combo_box)
                 new_combo_box.setEnabled(False)
 
             if self.tv_calibration_files:
@@ -368,7 +397,8 @@ class ControlDialog(QtGui.QDialog):
             self.ui.tv_photos_ok_checkbox.setChecked(True)
             self.update_tv_comboboxes()
 
-        self.ui.ok_button.setEnabled(self.can_start_flag == ControlDialog.WHEN_CAN_START)
+        self.ui.ok_button.setEnabled(
+            self.can_start_flag == ControlDialog.WHEN_CAN_START)
 
     def table_checkbox_clicked(self, checked):
         if checked and self.tv_calibration_files:
@@ -377,9 +407,11 @@ class ControlDialog(QtGui.QDialog):
         else:
             self.checked_correpsonfing_photos -= 1
             if self.checked_correpsonfing_photos == 0:
-                self.can_start_flag &= (~ControlDialog.CALIBRATION_CORRESPONDENCE)
-        
-        self.ui.ok_button.setEnabled(self.can_start_flag == ControlDialog.WHEN_CAN_START)
+                self.can_start_flag &= (
+                    ~ControlDialog.CALIBRATION_CORRESPONDENCE)
+
+        self.ui.ok_button.setEnabled(
+            self.can_start_flag == ControlDialog.WHEN_CAN_START)
 
     def on_select_matching_file_button_clicked(self):
         self.photo_matching_file = self.select_text_file_clicked()
@@ -389,7 +421,8 @@ class ControlDialog(QtGui.QDialog):
         else:
             self.can_start_flag &= (~ControlDialog.PHOTO_CORRESPONDENCE)
             self.ui.matching_file_edit.setText("")
-        self.ui.ok_button.setEnabled(self.can_start_flag == ControlDialog.WHEN_CAN_START)
+        self.ui.ok_button.setEnabled(
+            self.can_start_flag == ControlDialog.WHEN_CAN_START)
 
     def match_photos_by_file_radio_clicked(self):
         if self.photo_matching_file:
@@ -398,14 +431,16 @@ class ControlDialog(QtGui.QDialog):
             self.can_start_flag &= (~ControlDialog.PHOTO_CORRESPONDENCE)
         self.ui.matching_file_edit.setEnabled(True)
         self.ui.matching_file_button.setEnabled(True)
-        self.ui.ok_button.setEnabled(self.can_start_flag == ControlDialog.WHEN_CAN_START)
+        self.ui.ok_button.setEnabled(
+            self.can_start_flag == ControlDialog.WHEN_CAN_START)
 
     def match_photos_by_location_radio_clicked(self):
         self.can_start_flag |= ControlDialog.PHOTO_CORRESPONDENCE
         self.ui.matching_file_edit.setEnabled(False)
         self.ui.matching_file_button.setEnabled(False)
 
-        self.ui.ok_button.setEnabled(self.can_start_flag == ControlDialog.WHEN_CAN_START)
+        self.ui.ok_button.setEnabled(
+            self.can_start_flag == ControlDialog.WHEN_CAN_START)
 
 
 def f():
@@ -424,6 +459,7 @@ def set_translator(qtapp):
     translator.load(support_directory + os.sep + 'trans' + os.sep + trans_file)
     qtapp.installTranslator(translator)
     return translator
+
 
 def main():
     qtapp = QtGui.QApplication(sys.argv)
@@ -455,4 +491,5 @@ else:
     dlg = ControlDialog(mw)
     translator = set_translator(qtapp)
     dlg.set_translator(translator)
-    ps.app.addMenuItem(dlg.tr("Workflow/Relative Photo Alignment..."), f) #uncomment
+    ps.app.addMenuItem(
+        dlg.tr("Workflow/Relative Photo Alignment..."), f)  # uncomment
