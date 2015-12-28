@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dialog.ui'
 #
-# Created: Mon Dec 28 15:35:03 2015
+# Created: Mon Dec 28 17:53:36 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -49,11 +49,11 @@ class Ui_Dialog(object):
         self.groupBox_5.setTitle("")
         self.groupBox_5.setObjectName("groupBox_5")
         self.radio_calculate_matrices = QtGui.QRadioButton(self.groupBox_5)
-        self.radio_calculate_matrices.setGeometry(QtCore.QRect(5, 10, 181, 22))
+        self.radio_calculate_matrices.setGeometry(QtCore.QRect(5, 10, 421, 22))
         self.radio_calculate_matrices.setChecked(True)
         self.radio_calculate_matrices.setObjectName("radio_calculate_matrices")
         self.radio_use_file_matrices = QtGui.QRadioButton(self.groupBox_5)
-        self.radio_use_file_matrices.setGeometry(QtCore.QRect(5, 40, 261, 22))
+        self.radio_use_file_matrices.setGeometry(QtCore.QRect(5, 40, 421, 22))
         self.radio_use_file_matrices.setObjectName("radio_use_file_matrices")
         self.groupBox_2 = QtGui.QGroupBox(self.groupBox_5)
         self.groupBox_2.setGeometry(QtCore.QRect(-20, 60, 451, 401))
@@ -346,11 +346,11 @@ class Ui_Dialog(object):
         self.groupBox_4.setTitle("")
         self.groupBox_4.setObjectName("groupBox_4")
         self.match_by_location_radio = QtGui.QRadioButton(self.groupBox_4)
-        self.match_by_location_radio.setGeometry(QtCore.QRect(0, 0, 191, 22))
+        self.match_by_location_radio.setGeometry(QtCore.QRect(0, 0, 421, 22))
         self.match_by_location_radio.setChecked(True)
         self.match_by_location_radio.setObjectName("match_by_location_radio")
         self.match_by_file_radio = QtGui.QRadioButton(self.groupBox_4)
-        self.match_by_file_radio.setGeometry(QtCore.QRect(0, 20, 181, 22))
+        self.match_by_file_radio.setGeometry(QtCore.QRect(0, 20, 421, 22))
         self.match_by_file_radio.setObjectName("match_by_file_radio")
         self.gridLayout.addWidget(self.groupBox, 0, 0, 1, 1)
 

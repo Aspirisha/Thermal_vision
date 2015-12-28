@@ -451,13 +451,13 @@ def f():
 def set_translator(qtapp):
     settings = QtCore.QSettings()
     lang = settings.value('main/language')
-    translator = QtCore.QTranslator()
+    translator = QtCore.QTranslator(qtapp)
 
     trans_file = 'en_GB'
     if lang == 'ru':
         trans_file = 'ru_RU'
 
-    translator.load(support_directory + os.sep + 'trans' + os.sep + trans_file)
+    translator.load(trans_file, support_directory + os.sep + 'trans')
     qtapp.installTranslator(translator)
     return translator
 
@@ -493,4 +493,5 @@ else:
     translator = set_translator(qtapp)
     dlg.set_translator(translator)
     ps.app.addMenuItem(
-        dlg.tr("Workflow/Relative Photo Alignment..."), f)  # uncomment
+        translator.translate('dlg', "Workflow/Relative Photo Alignment..."), f)  # uncomment
+    dlg.ui.retranslateUi(dlg)
